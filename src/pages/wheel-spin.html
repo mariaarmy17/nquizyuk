@@ -58,14 +58,15 @@
         ];
 
         this.scoreValue = 0;
-        this.leaderboardKey = 'leaderboard_wheel_spin';
-        this.leaderboard = this.loadLeaderboard();
+        this.leaderboardMode = 'wheel_spin';
+        this.leaderboard = [];
         this.currentUser = (JSON.parse(sessionStorage.getItem('userInfo') || '{}').username) || 'Player';
+        this.leaderList = document.getElementById('leaderList');
 
         this.isSpinning=false; this.spinCount=0; this.rotation=0;
         this.setupCanvas(); this.drawWheel(); this.initEventListeners(); this.checkSession();
         this.updateScoreDisplay();
-        this.renderLeaderboard();
+        this.fetchLeaderboard().then(()=> this.renderLeaderboard());
       }
 
       checkSession(){
@@ -77,35 +78,50 @@
 
       drawWheel(){ const sliceAngle=(2*Math.PI)/this.categories.length; this.categories.forEach((cat,i)=>{ const start=i*sliceAngle+this.rotation; const end=start+sliceAngle; this.ctx.beginPath(); this.ctx.moveTo(this.centerX,this.centerY); this.ctx.arc(this.centerX,this.centerY,this.radius,start,end); this.ctx.closePath(); this.ctx.fillStyle=cat.color; this.ctx.fill(); this.ctx.strokeStyle='#fff'; this.ctx.lineWidth=3; this.ctx.stroke(); const textAngle=start+sliceAngle/2; this.ctx.save(); this.ctx.translate(this.centerX,this.centerY); this.ctx.rotate(textAngle); this.ctx.fillStyle='#fff'; this.ctx.font='bold 14px Arial'; this.ctx.textAlign='right'; this.ctx.fillText(cat.text,this.radius-20,5); this.ctx.restore() }); this.ctx.beginPath(); this.ctx.arc(this.centerX,this.centerY,15,0,2*Math.PI); this.ctx.fillStyle='#667eea'; this.ctx.fill(); this.ctx.strokeStyle='#fff'; this.ctx.lineWidth=2; this.ctx.stroke() }
 
-      spin(){ if(this.isSpinning) return; this.isSpinning=true; this.spinBtn.disabled=true; this.spinCount++; this.spinCountEl.textContent=this.spinCount; const extra=Math.random()*(2*Math.PI); const total=(5+Math.random()*5)*(2*Math.PI)+extra; const duration=3000; const start=performance.now(); const startRot=this.rotation; const animate=(now)=>{ const t=Math.min(1,(now-start)/duration); const eased=1-Math.pow(1-t,3); this.rotation=startRot+total*eased; this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height); this.drawWheel(); if(t<1) requestAnimationFrame(animate); else { this.isSpinning=false; this.spinBtn.disabled=false; this.showResult() } }; requestAnimationFrame(animate) }
-
-      showResult(){ const sliceAngle=(2*Math.PI)/this.categories.length; const normalized=((2*Math.PI)-(this.rotation%(2*Math.PI)))%(2*Math.PI); const idx=Math.floor(normalized/sliceAngle)%this.categories.length; const sel=this.categories[idx]; this.resultBox.innerHTML=`🎉 <strong>${sel.text}</strong><br><small>Pertanyaan tentang: ${sel.text}</small>`; this.resultBox.style.background=sel.color; this.resultBox.style.color='#fff' }
-
-      loadLeaderboard(){
-        try{
-          const raw = localStorage.getItem(this.leaderboardKey);
-          const data = raw ? JSON.parse(raw) : null;
-          return data && typeof data === 'object' ? data : {};
-        } catch(e){
-          return {};
+      async fetchLeaderboard(){
+        try {
+          const response = await fetch(`/api/leaderboard/${this.leaderboardMode}`);
+          if (!response.ok) throw new Error('Gagal mengambil leaderboard');
+          this.leaderboard = await response.json();
+        } catch (e) {
+          console.error('Gagal mengambil leaderboard', e);
+          this.leaderboard = [];
         }
       }
 
-      saveLeaderboard(){
-        try{
-          localStorage.setItem(this.leaderboardKey, JSON.stringify(this.leaderboard));
-        } catch(e){
-          console.error('Gagal menyimpan leaderboard', e);
+      async saveScoreToServer(score){
+        try {
+          const roomCode = sessionStorage.getItem('currentRoomCode');
+          const response = await fetch('/api/scores', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              username: this.currentUser,
+              mode: this.leaderboardMode,
+              score,
+              room_code: roomCode || null
+            })
+          });
+          if (!response.ok) {
+            const data = await response.json().catch(() => ({}));
+            throw new Error(data.error || 'Gagal menyimpan skor');
+          }
+          await this.fetchLeaderboard();
+          this.renderLeaderboard();
+        } catch (e) {
+          console.error('Gagal menyimpan skor', e);
         }
       }
 
       renderLeaderboard(){
-        const entries = Object.entries(this.leaderboard).sort((a,b)=>b[1]-a[1]);
+        const entries = Array.isArray(this.leaderboard)
+          ? this.leaderboard.slice().sort((a,b)=>b.score-a.score)
+          : Object.entries(this.leaderboard).sort((a,b)=>b[1]-a[1]).map(([name,score])=>({ username:name, score }));
         const html = entries.length
-          ? entries.map(([name,score], index)=>{
+          ? entries.map((row, index)=>{
               const rank = index + 1;
-              const highlight = name === this.currentUser ? 'font-weight:700; color:#fde68a;' : '';
-              return `<div class="player" style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.08); ${highlight}"><span>${rank}. ${name}</span><span>${score}</span></div>`;
+              const highlight = row.username === this.currentUser ? 'font-weight:700; color:#fde68a;' : '';
+              return `<div class="player" style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.08); ${highlight}"><span>${rank}. ${row.username}</span><span>${row.score}</span></div>`;
             }).join('')
           : '<div class="player">Belum ada skor ditampilkan</div>';
         this.leaderList.innerHTML = html;
@@ -117,10 +133,8 @@
 
       addScore(points){
         this.scoreValue += points;
-        this.leaderboard[this.currentUser] = Math.max(this.leaderboard[this.currentUser] || 0, this.scoreValue);
-        this.saveLeaderboard();
         this.updateScoreDisplay();
-        this.renderLeaderboard();
+        this.saveScoreToServer(this.scoreValue);
       }
 
       spin(){ if(this.isSpinning) return; this.isSpinning=true; this.spinBtn.disabled=true; this.spinCount++; this.spinCountEl.textContent=this.spinCount; const extra=Math.random()*(2*Math.PI); const total=(5+Math.random()*5)*(2*Math.PI)+extra; const duration=3000; const start=performance.now(); const startRot=this.rotation; const animate=(now)=>{ const t=Math.min(1,(now-start)/duration); const eased=1-Math.pow(1-t,3); this.rotation=startRot+total*eased; this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height); this.drawWheel(); if(t<1) requestAnimationFrame(animate); else { this.isSpinning=false; this.spinBtn.disabled=false; this.showResult() } }; requestAnimationFrame(animate) }

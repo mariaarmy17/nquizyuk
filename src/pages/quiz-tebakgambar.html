@@ -556,34 +556,55 @@ let timeLeft = questionDuration;
 
 const userInfo = JSON.parse(sessionStorage.getItem('userInfo') || '{}');
 const myName = userInfo.username || 'You';
-const leaderboardKey = 'leaderboard_quiz_tebakgambar';
-let leaderboard = {};
+const leaderboardMode = 'quiz_tebakgambar';
+const roomCode = sessionStorage.getItem('currentRoomCode');
+let leaderboard = [];
+let currentScore = 0;
 
-function loadLeaderboard() {
+async function saveScoreToServer(score) {
   try {
-    const raw = localStorage.getItem(leaderboardKey);
-    const data = raw ? JSON.parse(raw) : null;
-    return data && typeof data === 'object' ? data : {};
-  } catch (e) {
-    return {};
+    const response = await fetch('/api/scores', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        username: myName,
+        mode: leaderboardMode,
+        score,
+        room_code: roomCode || null
+      })
+    });
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}));
+      throw new Error(data.error || 'Gagal menyimpan skor');
+    }
+    await fetchLeaderboard();
+  } catch (error) {
+    console.error('Error menyimpan skor:', error);
   }
 }
 
-function saveLeaderboard() {
+async function fetchLeaderboard() {
   try {
-    localStorage.setItem(leaderboardKey, JSON.stringify(leaderboard));
-  } catch (e) {
-    console.error('Gagal menyimpan leaderboard', e);
+    const response = await fetch(`/api/leaderboard/${leaderboardMode}`);
+    if (!response.ok) throw new Error('Gagal mengambil leaderboard');
+    leaderboard = await response.json();
+  } catch (error) {
+    console.error('Error mengambil leaderboard:', error);
+    leaderboard = [];
   }
+  renderLeaderboard();
 }
 
 function renderLeaderboard(){
-  const entries = Object.entries(leaderboard).sort((a,b)=>b[1]-a[1]);
+  const entries = Array.isArray(leaderboard)
+    ? leaderboard.slice().sort((a,b)=>b.score-a.score)
+    : Object.entries(leaderboard).sort((a,b)=>b[1]-a[1]).map(([name,score])=>({ username:name, score }));
+
   leaderList.innerHTML = entries.length
-    ? entries.map(([name,score],i)=>{
+    ? entries.map((row,i)=>{
         const rank = i + 1;
-        const highlight = name === myName ? ' style="font-weight:700; color:#fde68a;"' : '';
-        return `<div class="player"${highlight}><span>${rank}. ${name}</span><span>${score}</span></div>`;
+        const highlight = row.username === myName ? ' style="font-weight:700; color:#fde68a;"' : '';
+        return `<div class="player"${highlight}><span>${rank}. ${row.username}</span><span>${row.score}</span></div>`;
       }).join('')
     : '<div class="player"><span>Belum ada skor ditampilkan</span></div>';
 }
@@ -623,11 +644,10 @@ function selectAnswer(idx, btn){
   document.querySelectorAll('.option').forEach(b=>b.disabled=true);
   const correct = questions[current].correct;
   if(idx === correct){
-    // increase score
-    leaderboard[myName] = (leaderboard[myName]||0) + 10;
-    myScoreEl.textContent = leaderboard[myName];
+    currentScore += 10;
+    myScoreEl.textContent = currentScore;
     btn.style.background = '#10B981';
-    saveLeaderboard();
+    saveScoreToServer(currentScore);
   } else {
     btn.style.background = '#FF6B6B';
     // highlight correct
@@ -661,10 +681,13 @@ function nextQuestion(){
   renderQuestion();
 }
 
-// initialize leaderboard with current user only
-leaderboard[myName] = leaderboard[myName] || 0;
-renderLeaderboard();
-renderQuestion();
+(async function initQuiz() {
+  currentScore = 0;
+  myScoreEl.textContent = currentScore;
+  await fetchLeaderboard();
+  renderLeaderboard();
+  renderQuestion();
+})();
 
 </script>
 

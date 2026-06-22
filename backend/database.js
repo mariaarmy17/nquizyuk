@@ -79,6 +79,15 @@ function initializeDatabase() {
       participant_name TEXT NOT NULL,
       joined_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (room_code_id) REFERENCES room_codes(id) ON DELETE CASCADE
+    )`,
+    `CREATE TABLE IF NOT EXISTS player_scores (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      username TEXT NOT NULL,
+      mode TEXT NOT NULL,
+      score INTEGER NOT NULL,
+      room_code TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      UNIQUE(username, mode)
     )`
   ];
   

@@ -84,6 +84,37 @@ app.post('/api/answers', (req, res) => {
     });
 });
 
+// POST - Simpan skor player per mode
+app.post('/api/scores', (req, res) => {
+  const { username, mode, score, room_code } = req.body;
+  if (!username || !mode || typeof score !== 'number') {
+    return res.status(400).json({ error: 'username, mode, dan score diperlukan' });
+  }
+
+  db.run(`INSERT INTO player_scores (username, mode, score, room_code) VALUES (?, ?, ?, ?)
+          ON CONFLICT(username, mode) DO UPDATE SET score = excluded.score, room_code = excluded.room_code`,
+    [username, mode, score, room_code || null],
+    function(err) {
+      if (err) {
+        res.status(500).json({ error: err.message });
+        return;
+      }
+      res.json({ message: 'Skor tersimpan', username, mode, score });
+    });
+});
+
+// GET - Ambil leaderboard per mode
+app.get('/api/leaderboard/:mode', (req, res) => {
+  const mode = req.params.mode;
+  db.all('SELECT username, score FROM player_scores WHERE mode = ? ORDER BY score DESC LIMIT 10', [mode], (err, rows) => {
+    if (err) {
+      res.status(500).json({ error: err.message });
+      return;
+    }
+    res.json(rows || []);
+  });
+});
+
 function createNlpAnswer(text) {
   const input = text.trim();
   const lower = input.toLowerCase();

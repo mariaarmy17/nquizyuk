@@ -111,6 +111,35 @@ async function checkRoomCode(roomCode) {
   }
 }
 
+async function savePlayerScore(username, mode, score, roomCode) {
+  try {
+    const response = await fetch(`${API_URL}/scores`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, mode, score, room_code: roomCode })
+    });
+    if (!response.ok) {
+      const data = await response.json();
+      throw new Error(data.error || 'Gagal menyimpan skor');
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Error:', error);
+    return null;
+  }
+}
+
+async function getLeaderboard(mode) {
+  try {
+    const response = await fetch(`${API_URL}/leaderboard/${mode}`);
+    if (!response.ok) throw new Error('Gagal mengambil leaderboard');
+    return await response.json();
+  } catch (error) {
+    console.error('Error:', error);
+    return [];
+  }
+}
+
 // Export untuk digunakan di file lain
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
@@ -120,6 +149,8 @@ if (typeof module !== 'undefined' && module.exports) {
     getQuestions,
     saveAnswer,
     createRoomCode,
-    checkRoomCode
+    checkRoomCode,
+    savePlayerScore,
+    getLeaderboard
   };
 }

@@ -616,35 +616,55 @@ let totalPositions = daftarSoal.length || 20;
 let currentScore = Number(localStorage.getItem('userScore') || 50);
 
 const userInfo = JSON.parse(sessionStorage.getItem('userInfo') || '{}');
-const currentUser = userInfo.username ? userInfo.username : 'Player';
-const leaderboardKey = 'leaderboard_quiz_gameshow';
-let leaderboard = {};
+const currentUser = userInfo.username || 'Player';
+const leaderboardMode = 'quiz_gameshow';
+const roomCode = sessionStorage.getItem('currentRoomCode');
+let leaderboard = [];
 
-function loadLeaderboard() {
+async function saveScoreToServer(score) {
   try {
-    const raw = localStorage.getItem(leaderboardKey);
-    const data = raw ? JSON.parse(raw) : null;
-    return data && typeof data === 'object' ? data : {};
-  } catch (e) {
-    return {};
+    const response = await fetch('/api/scores', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        username: currentUser,
+        mode: leaderboardMode,
+        score,
+        room_code: roomCode || null
+      })
+    });
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}));
+      throw new Error(data.error || 'Gagal menyimpan skor');
+    }
+    await fetchLeaderboard();
+  } catch (error) {
+    console.error('Error menyimpan skor:', error);
   }
 }
 
-function saveLeaderboard() {
+async function fetchLeaderboard() {
   try {
-    localStorage.setItem(leaderboardKey, JSON.stringify(leaderboard));
-  } catch (e) {
-    console.error('Gagal menyimpan leaderboard', e);
+    const response = await fetch(`/api/leaderboard/${leaderboardMode}`);
+    if (!response.ok) throw new Error('Gagal mengambil leaderboard');
+    leaderboard = await response.json();
+  } catch (error) {
+    console.error('Error mengambil leaderboard:', error);
+    leaderboard = [];
   }
+  renderLeaderboard();
 }
 
 function renderLeaderboard() {
-  const entries = Object.entries(leaderboard).sort((a, b) => b[1] - a[1]);
+  const entries = Array.isArray(leaderboard)
+    ? leaderboard.slice().sort((a, b) => b.score - a.score)
+    : Object.entries(leaderboard).sort((a, b) => b[1] - a[1]).map(([name, score]) => ({ username: name, score }));
+
   const html = entries.length
-    ? entries.map(([name, score], index) => {
+    ? entries.map((row, index) => {
         const rank = index + 1;
-        const highlight = name === currentUser ? ' style="font-weight:700; color:#fde68a;"' : '';
-        return `<div class="player"${highlight}><span>${rank}. ${name}</span><span>${score}</span></div>`;
+        const highlight = row.username === currentUser ? ' style="font-weight:700; color:#fde68a;"' : '';
+        return `<div class="player"${highlight}><span>${rank}. ${row.username}</span><span>${row.score}</span></div>`;
       }).join('')
     : '<div class="player"><span>Belum ada skor ditampilkan</span></div>';
   document.getElementById('leaderList').innerHTML = html;
@@ -656,17 +676,15 @@ function updatePosition(position, total = 20) {
   positionValueEl.textContent = `${position}/${total}`;
 }
 
-function updateScore(score) {
+function updateScore(score, save = false) {
   currentScore = score;
   scoreValueEl.textContent = score;
-  leaderboard[currentUser] = score;
-  saveLeaderboard();
-  renderLeaderboard();
+  if (save) saveScoreToServer(score);
 }
 
 function setProgress(position, total, score) {
   updatePosition(position, total);
-  updateScore(score);
+  updateScore(score, true);
 }
 
 // Tampilkan soal pertama
@@ -715,7 +733,7 @@ function selectAnswer(selectedIndex, correctAnswer, questionIndex) {
   // Update skor jika benar
   if (selectedLetter === correctAnswer) {
     currentScore += 10;
-    updateScore(currentScore);
+    updateScore(currentScore, true);
   }
   
   // Load soal berikutnya setelah 1 detik
@@ -730,15 +748,11 @@ function resetTimer() {
   timerEl.textContent = '00:' + String(detik).padStart(2, '0');
 }
 
-leaderboard = loadLeaderboard();
-if (!leaderboard[currentUser]) {
-  leaderboard[currentUser] = currentScore;
-}
+fetchLeaderboard();
 
 // initialize card 1 and card 3 values
 updatePosition(currentPosition, totalPositions);
-updateScore(currentScore);
-renderLeaderboard();
+updateScore(currentScore, false);
 
 const timerEl = document.getElementById('timer');
 
