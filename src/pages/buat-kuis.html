@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Buat Quiz</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial, sans-serif;
+}
+
+body{
+background:#1E315B;
+color:white;
+}
+
+/* NAVBAR */
+.navbar{
+height:80px;
+background:#243D6A;
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:0 50px;
+}
+
+.logo{
+font-size:28px;
+font-weight:bold;
+color:#F5A623;
+}
+
+.menu{
+display:flex;
+gap:40px;
+}
+
+.profile{
+width:50px;
+height:50px;
+border-radius:50%;
+background:#F5A623;
+display:flex;
+align-items:center;
+justify-content:center;
+}
+
+.exit-icon{
+display:inline-flex;
+align-items:center;
+gap:8px;
+padding:8px 14px;
+border-radius:999px;
+background:#f4a621;
+color:#24395f;
+text-decoration:none;
+font-weight:bold;
+border:none;
+cursor:pointer;
+}
+
+/* CONTAINER */
+
+.container{
+padding:30px;
+display:grid;
+grid-template-columns:2fr 1fr;
+gap:20px;
+}
+
+/* CARD */
+
+.card{
+background:#243D6A;
+padding:20px;
+border-radius:15px;
+}
+
+/* INFORMASI QUIZ */
+
+.info-grid{
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:15px;
+margin-top:20px;
+}
+
+input,
+select,
+textarea{
+
+width:100%;
+padding:15px;
+border:none;
+outline:none;
+border-radius:10px;
+
+background:#2D4777;
+color:white;
+}
+
+textarea{
+height:120px;
+resize:none;
+}
+
+/* EDITOR */
+
+.editor-title{
+
+display:flex;
+justify-content:space-between;
+margin-bottom:20px;
+
+}
+
+.answer{
+
+display:flex;
+gap:10px;
+margin-top:10px;
+
+}
+
+.answer span{
+
+width:40px;
+height:40px;
+
+background:#A648FF;
+
+border-radius:50%;
+
+display:flex;
+
+justify-content:center;
+
+align-items:center;
+
+font-weight:bold;
+
+}
+
+.answer input{
+flex:1;
+}
+
+.add-btn{
+
+margin-top:15px;
+
+background:#2D4777;
+
+padding:15px;
+
+border-radius:10px;
+
+text-align:center;
+
+cursor:pointer;
+
+}
+
+.question-list{
+
+display:flex;
+
+flex-direction:column;
+
+gap:15px;
+
+margin-top:20px;
+
+}
+
+.question{
+
+background:#2D4777;
+
+padding:15px;
+
+border-radius:10px;
+
+display:flex;
+
+gap:15px;
+
+}
+
+.number{
+
+font-size:24px;
+
+font-weight:bold;
+
+}
+
+.footer-btn{
+
+display:flex;
+
+justify-content:flex-end;
+
+gap:15px;
+
+margin-top:20px;
+
+}
+
+.save{
+
+background:#F5A623;
+
+color:black;
+
+padding:15px 40px;
+
+border:none;
+
+border-radius:30px;
+
+font-weight:bold;
+
+}
+
+.next{
+
+background:#10B981;
+
+color:white;
+
+padding:15px 40px;
+
+border:none;
+
+border-radius:30px;
+
+font-weight:bold;
+
+}
+
+h2{
+margin-bottom:10px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+
+<div class="navbar">
+
+<div class="logo">
+NQUIZYUK | BUAT QUIZ BARU
+</div>
+
+<div class="menu">
+
+<div>Quiz</div>
+
+<div>AI Assistance</div>
+
+<div class="profile">NR</div>
+
+</div>
+
+</div>
+
+
+<div class="container">
+
+<!-- KIRI -->
+
+<div>
+
+<div class="card">
+
+<h2>INFORMASI QUIZ</h2>
+
+<div class="info-grid">
+
+<input type="text" placeholder="Judul Quiz">
+
+<input type="text" placeholder="Mata Pelajaran">
+
+<input type="number" id="durasi" placeholder="Durasi (detik)" min="1">
+
+<input type="number" id="jumlahSoal" placeholder="Jumlah soal" min="1" value="1">
+
+</div>
+
+</div>
+
+
+<br>
+
+<div class="card">
+
+<div class="editor-title">
+
+<h2>EDITOR SOAL</h2>
+
+<h2 id="soalCounter">Soal 1 dari 1 soal</h2>
+
+</div>
+
+<label>Soal</label>
+
+<textarea id="soalInput" placeholder="Masukkan soal"></textarea>
+
+<br><br>
+
+<label>Pilihan Jawaban</label>
+
+<div class="answer">
+
+<span>A</span>
+
+<input type="text" placeholder="Jawaban A">
+
+<button type="button" class="remove-answer" onclick="removeAnswer(this)" title="Hapus jawaban">×</button>
+
+</div>
+
+<div class="answer">
+
+<span>B</span>
+
+<input type="text" placeholder="Jawaban B">
+
+<button type="button" class="remove-answer" onclick="removeAnswer(this)" title="Hapus jawaban">×</button>
+
+</div>
+
+<div class="add-btn">
+
++ Tambah Pilihan Jawaban
+
+</div>
+
+<br><br>
+
+<label>Jawaban Benar</label>
+
+<select id="jawabanBenar">
+<option value="">Pilih Jawaban Benar</option>
+<option value="A">A</option>
+<option value="B">B</option>
+<option value="C">C</option>
+<option value="D">D</option>
+</select>
+
+<br><br>
+
+<label>Poin</label>
+
+<input type="number" id="poin" placeholder="Masukkan poin" value="10">
+
+</div>
+
+</div>
+
+
+<!-- KANAN -->
+
+<div class="card">
+
+<h2>DAFTAR SOAL</h2>
+
+<div id="soalList" class="question-list">
+
+</div>
+
+<div class="footer-btn">
+
+<button class="save">
+SIMPAN
+</button>
+
+<button class="next">
+LANJUTKAN
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+</body>
+</html>
+
+<script>
+const soalInput = document.getElementById("soalInput");
+const soalList = document.getElementById("soalList");
+const saveBtn = document.querySelector(".save");
+const nextBtn = document.querySelector(".next");
+const addBtn = document.querySelector(".add-btn");
+const jumlahSoalInput = document.getElementById("jumlahSoal");
+const soalCounter = document.getElementById("soalCounter");
+
+let daftarSoal = JSON.parse(localStorage.getItem("daftarSoal")) || [];
+let editIndex = -1;
+
+function simpanLocal(){
+	localStorage.setItem("daftarSoal", JSON.stringify(daftarSoal));
+}
+
+function tampilkanSoal(){
+	soalList.innerHTML = "";
+	daftarSoal.forEach((item, index) => {
+		const div = document.createElement("div");
+		div.className = "question";
+		div.innerHTML = `
+			<div class="number">${index + 1}</div>
+			<div>
+				<div>${item.soal}</div>
+				<div style="margin-top:10px; display:flex; gap:10px;">
+					<button onclick="editSoal(${index})" style="background:#10B981; color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">Edit</button>
+					<button onclick="hapusSoal(${index})" style="background:#FF6B6B; color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">Hapus</button>
+				</div>
+			</div>
+		`;
+		soalList.appendChild(div);
+	});
+}
+
+window.editSoal = function(index){
+	const item = daftarSoal[index];
+	soalInput.value = item.soal;
+	
+	const inputs = document.querySelectorAll(".answer input");
+	inputs.forEach((input, i) => {
+		input.value = item.jawaban[i] || "";
+	});
+	
+	document.getElementById("jawabanBenar").value = item.benar;
+	document.getElementById("poin").value = item.poin;
+	
+	editIndex = index;
+	soalInput.focus();
+}
+
+window.hapusSoal = function(index){
+	if(confirm("Hapus soal ini?")){
+		daftarSoal.splice(index, 1);
+		simpanLocal();
+		tampilkanSoal();
+	}
+}
+
+saveBtn.addEventListener("click", function(){
+	const soal = soalInput.value.trim();
+	
+	if(!soal){
+		alert("Masukkan soal terlebih dahulu");
+		return;
+	}
+	
+	const jawaban = [];
+	document.querySelectorAll(".answer input").forEach(input => {
+		jawaban.push(input.value);
+	});
+	
+	const benar = document.getElementById("jawabanBenar").value;
+	const poin = document.getElementById("poin").value;
+	
+	if(!benar){
+		alert("Pilih jawaban benar");
+		return;
+	}
+	
+	const dataSoal = {
+		soal: soal,
+		jawaban: jawaban,
+		benar: benar,
+		poin: poin || "10"
+	};
+	
+	if(editIndex === -1){
+		daftarSoal.push(dataSoal);
+	} else {
+		daftarSoal[editIndex] = dataSoal;
+		editIndex = -1;
+	}
+	
+	simpanLocal();
+	tampilkanSoal();
+	
+	soalInput.value = "";
+	document.querySelectorAll(".answer input").forEach(input => {
+		input.value = "";
+	});
+	document.getElementById("jawabanBenar").value = "";
+	document.getElementById("poin").value = "10";
+	
+	alert("Soal berhasil disimpan");
+	soalInput.focus();
+});
+
+addBtn.addEventListener("click", function(){
+	const jumlah = document.querySelectorAll(".answer").length;
+	const huruf = String.fromCharCode(65 + jumlah);
+	
+	const div = document.createElement("div");
+	div.className = "answer";
+	div.innerHTML = `
+		<span>${huruf}</span>
+		<input type="text" placeholder="Jawaban ${huruf}">
+		<button type="button" class="remove-answer" onclick="removeAnswer(this)" title="Hapus jawaban">×</button>
+	`;
+	
+	addBtn.before(div);
+});
+
+window.removeAnswer = function(button){
+	const answerRow = button.closest('.answer');
+	if(answerRow){
+		answerRow.remove();
+	}
+};
+
+function updateSoalCounter(){
+	const total = Number(jumlahSoalInput.value) || 1;
+	soalCounter.textContent = `Soal 1 dari ${total} soal`;
+}
+
+jumlahSoalInput.addEventListener("input", updateSoalCounter);
+
+updateSoalCounter();
+
+nextBtn.addEventListener("click", function(){
+	if(daftarSoal.length === 0){
+		alert("Buat minimal 1 soal terlebih dahulu");
+		return;
+	}
+	
+	window.location.href = "waiting-guru.html";
+});
+
+tampilkanSoal();
+soalInput.focus();
+</script>

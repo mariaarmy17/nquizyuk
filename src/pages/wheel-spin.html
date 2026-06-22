@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wheel Spin - NQUIZYUK</title>
+  <link rel="stylesheet" href="../../public/style.css">
+  <style>
+    body{ background-color:#243A63; }
+    .page-card{ background-image: url("../../assets/CONFETTI.png"), linear-gradient(180deg, rgba(41,61,112,0.96), rgba(30,43,78,0.96)); background-size: cover; border-radius:16px; padding:28px; margin:32px; }
+    .wheel-container{ display:flex; flex-direction:column; align-items:center; gap:24px; margin-top:20px }
+    .wheel-wrapper{ position:relative; width:320px; height:320px }
+    #wheelCanvas{ width:100%; height:100%; display:block }
+    .wheel-pointer{ position:absolute; top:-15px; left:50%; transform:translateX(-50%); border-left:15px solid transparent; border-right:15px solid transparent; border-top:20px solid #ff6b6b }
+    .spin-button{ padding:12px 32px; border-radius:8px; background:linear-gradient(135deg,#667eea,#764ba2); color:#fff; border:none; font-weight:700; cursor:pointer }
+    .result-box{ background: rgba(255,255,255,0.08); color:#fff; padding:12px 16px; border-radius:8px }
+  </style>
+</head>
+<body>
+
+  <header class="navbar"><div class="logo">NQUIZYUK</div><nav><a href="../../index.html">Beranda</a></nav></header>
+
+  <section class="page-shell">
+    <div class="page-card">
+      <div class="page-header"><div><span class="label" id="roomCodeLabel"></span><h1 class="page-title">Wheel Spin</h1></div></div>
+      <p class="page-copy">Putar roda untuk mendapatkan pertanyaan random!</p>
+      <div class="wheel-container">
+        <div class="wheel-wrapper"><div class="wheel-pointer"></div><canvas id="wheelCanvas"></canvas></div>
+        <button class="spin-button" id="spinBtn">🎡 PUTAR RODA</button>
+        <div class="result-box" id="resultBox">Klik tombol untuk memulai</div>
+        <div class="spin-count">Total Spin: <span id="spinCount">0</span></div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    class WheelSpin {
+      constructor(){
+        this.canvas = document.getElementById('wheelCanvas');
+        this.ctx = this.canvas.getContext('2d');
+        this.spinBtn = document.getElementById('spinBtn');
+        this.resultBox = document.getElementById('resultBox');
+        this.spinCountEl = document.getElementById('spinCount');
+        this.roomCodeLabel = document.getElementById('roomCodeLabel');
+
+        this.categories = [
+          { text:'Matematika', color:'#FF6B6B' },
+          { text:'IPA', color:'#4ECDC4' },
+          { text:'Bahasa', color:'#45B7D1' },
+          { text:'Sejarah', color:'#FFA07A' },
+          { text:'Geografi', color:'#98D8C8' },
+          { text:'Seni', color:'#F7DC6F' }
+        ];
+
+        this.isSpinning=false; this.spinCount=0; this.rotation=0;
+        this.setupCanvas(); this.drawWheel(); this.initEventListeners(); this.checkSession();
+      }
+
+      checkSession(){
+        const roomCode = sessionStorage.getItem('currentRoomCode');
+        if(roomCode && this.roomCodeLabel) this.roomCodeLabel.textContent = 'Room Code: ' + roomCode;
+      }
+
+      setupCanvas(){ const size = Math.min(window.innerWidth*0.8,320); this.canvas.width=size; this.canvas.height=size; this.centerX=size/2; this.centerY=size/2; this.radius=size/2-10 }
+
+      drawWheel(){ const sliceAngle=(2*Math.PI)/this.categories.length; this.categories.forEach((cat,i)=>{ const start=i*sliceAngle+this.rotation; const end=start+sliceAngle; this.ctx.beginPath(); this.ctx.moveTo(this.centerX,this.centerY); this.ctx.arc(this.centerX,this.centerY,this.radius,start,end); this.ctx.closePath(); this.ctx.fillStyle=cat.color; this.ctx.fill(); this.ctx.strokeStyle='#fff'; this.ctx.lineWidth=3; this.ctx.stroke(); const textAngle=start+sliceAngle/2; this.ctx.save(); this.ctx.translate(this.centerX,this.centerY); this.ctx.rotate(textAngle); this.ctx.fillStyle='#fff'; this.ctx.font='bold 14px Arial'; this.ctx.textAlign='right'; this.ctx.fillText(cat.text,this.radius-20,5); this.ctx.restore() }); this.ctx.beginPath(); this.ctx.arc(this.centerX,this.centerY,15,0,2*Math.PI); this.ctx.fillStyle='#667eea'; this.ctx.fill(); this.ctx.strokeStyle='#fff'; this.ctx.lineWidth=2; this.ctx.stroke() }
+
+      spin(){ if(this.isSpinning) return; this.isSpinning=true; this.spinBtn.disabled=true; this.spinCount++; this.spinCountEl.textContent=this.spinCount; const extra=Math.random()*(2*Math.PI); const total=(5+Math.random()*5)*(2*Math.PI)+extra; const duration=3000; const start=performance.now(); const startRot=this.rotation; const animate=(now)=>{ const t=Math.min(1,(now-start)/duration); const eased=1-Math.pow(1-t,3); this.rotation=startRot+total*eased; this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height); this.drawWheel(); if(t<1) requestAnimationFrame(animate); else { this.isSpinning=false; this.spinBtn.disabled=false; this.showResult() } }; requestAnimationFrame(animate) }
+
+      showResult(){ const sliceAngle=(2*Math.PI)/this.categories.length; const normalized=((2*Math.PI)-(this.rotation%(2*Math.PI)))%(2*Math.PI); const idx=Math.floor(normalized/sliceAngle)%this.categories.length; const sel=this.categories[idx]; this.resultBox.innerHTML=`🎉 <strong>${sel.text}</strong><br><small>Pertanyaan tentang: ${sel.text}</small>`; this.resultBox.style.background=sel.color; this.resultBox.style.color='#fff' }
+
+      initEventListeners(){ this.spinBtn.addEventListener('click',()=>this.spin()); const logout=document.getElementById('logoutBtn'); if(logout) logout.addEventListener('click',()=>{ sessionStorage.clear(); window.location.href='../../index.html' }); window.addEventListener('resize',()=>{ this.setupCanvas(); this.drawWheel() }) }
+    }
+
+    document.addEventListener('DOMContentLoaded',()=>new WheelSpin());
+  </script>
+
+</body>
+</html>

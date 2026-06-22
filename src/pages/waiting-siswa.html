@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Waiting Siswa</title>
+
+<link rel="stylesheet" href="../../public/style.css">
+
+</head>
+
+<body>
+  <a href="../../index.html" class="exit-icon top-right-exit" title="Keluar">
+    🚪
+  </a>
+
+<section class="page-shell">
+  <div class="page-card student-card">
+    <div class="student-header">
+      <div>
+        <span class="label">Gabung Room</span>
+        <h1 class="page-title">Masuk sebagai siswa</h1>
+      </div>
+    </div>
+
+    <p class="page-copy">Masukkan nama dan kode ruang dari guru untuk ikut dalam waiting list.</p>
+
+    <div class="note-card">
+      Kode ruang dikirim oleh guru. Pastikan Anda menggunakan kode yang sama persis.
+    </div>
+
+    <div class="form-group">
+      <label>Nama Siswa</label>
+      <input id="studentName" type="text" placeholder="Tulis nama kamu" class="page-input">
+      <label>Room Code</label>
+      <input id="roomCodeInput" type="text" placeholder="Masukkan kode room" class="page-input">
+    </div>
+
+    <button class="guru" id="joinRoomBtn">Gabung</button>
+    <p id="joinMessage" class="status-text"></p>
+  </div>
+</section>
+
+<script>
+  (function(){
+    const nameInput = document.getElementById('studentName');
+    const roomInput = document.getElementById('roomCodeInput');
+    const joinBtn = document.getElementById('joinRoomBtn');
+    const messageEl = document.getElementById('joinMessage');
+
+    function getKey(code){
+      return 'waitingStudents_' + code.trim().toUpperCase();
+    }
+
+    function loadList(code){
+      try{
+        const raw = localStorage.getItem(getKey(code));
+        return raw ? JSON.parse(raw) : [];
+      } catch(e){
+        return [];
+      }
+    }
+
+    function saveList(code, list){
+      localStorage.setItem(getKey(code), JSON.stringify(list));
+    }
+
+    function getActiveRoom(){
+      return localStorage.getItem('activeRoomCode');
+    }
+
+    joinBtn.addEventListener('click', function(){
+      const name = nameInput.value.trim();
+      const code = roomInput.value.trim().toUpperCase();
+      if(!name){
+        alert('Masukkan nama siswa terlebih dahulu');
+        return;
+      }
+      if(!code){
+        alert('Masukkan room code');
+        return;
+      }
+      const activeRoom = getActiveRoom();
+      if(!activeRoom || activeRoom !== code){
+        alert('Room code tidak ditemukan. Pastikan kode dari guru benar.');
+        return;
+      }
+      const list = loadList(code);
+      // store object with timestamp for richer info
+      const entry = {name: name, joinedAt: new Date().toISOString()};
+      list.push(entry);
+      saveList(code, list);
+      messageEl.textContent = 'Berhasil gabung ke room ' + code + '!';
+      messageEl.style.display = 'block';
+      nameInput.value = '';
+      roomInput.value = '';
+    });
+  })();
+</script>
+
+</body>
+</html>

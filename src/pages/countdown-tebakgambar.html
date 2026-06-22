@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Tebak Gambar</title>
+
+<link rel="stylesheet" href="../../public/css/style.css">
+<style>
+body{
+  background-color:#243A63;
+}
+.start-card{
+  max-width:520px;
+  margin:120px auto;
+  padding:50px 40px;
+  border-radius:30px;
+  background-image: url("../../assets/CONFETTI.png"), linear-gradient(rgba(36,58,99,0.95), rgba(36,58,99,0.95));
+  background-size: cover, cover;
+  background-position: center, center;
+  background-repeat: no-repeat, no-repeat;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+}
+.exit-icon{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:8px 14px;
+  border-radius:999px;
+  background:#f4a621;
+  color:#24395f;
+  text-decoration:none;
+  font-weight:bold;
+  font-size:14px;
+  border:none;
+  cursor:pointer;
+}
+.top-right-exit{
+  position:fixed;
+  top:20px;
+  right:20px;
+  z-index:999;
+}
+</style>
+
+</head>
+
+<body>
+  <a href="../../index.html" class="exit-icon top-right-exit" title="Keluar">
+    🚪
+  </a>
+
+<section class="start-card" style="text-align:center; color:white;">
+<h1 id="countDisplay" style="font-size:120px;">
+3
+</h1>
+
+<h2 id="startLabel">Tebak Gambar Dimulai</h2>
+
+</section>
+
+<script>
+let time = 3; // seconds
+const display = document.getElementById('countDisplay');
+const label = document.getElementById('startLabel');
+
+const id = setInterval(()=>{
+  if(time>0){
+    time--;
+    display.textContent = time;
+  }
+  if(time === 0){
+    clearInterval(id);
+    // small delay so UI updates to 0
+    setTimeout(()=>{
+      window.location.href = 'quiz-tebakgambar.html';
+    }, 300);
+  }
+}, 1000);
+</script>
+
+</body>
+</html>

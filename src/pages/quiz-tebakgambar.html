@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Quiz Tebak Gambar</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
+body{
+background-color:#243A63;
+color:white;
+}
+
+/* NAVBAR */
+
+.navbar{
+
+height:80px;
+
+background:#263F6A;
+
+display:flex;
+
+justify-content:space-between;
+
+align-items:center;
+
+padding:0 30px;
+
+}
+
+.left{
+
+display:flex;
+
+gap:20px;
+
+align-items:center;
+
+}
+
+.logo{
+
+font-size:30px;
+
+font-weight:bold;
+
+color:#F5A623;
+
+}
+
+.info{
+
+background:#304C79;
+
+padding:10px 14px;
+
+border-radius:10px;
+
+}
+
+.small{
+
+font-size:12px;
+
+}
+
+.orange{
+
+color:#F5A623;
+
+}
+
+.menu{
+
+display:flex;
+
+gap:30px;
+
+align-items:center;
+
+}
+
+.avatar{
+
+width:50px;
+
+height:50px;
+
+border-radius:50%;
+
+background:#F5A623;
+
+display:flex;
+
+justify-content:center;
+
+align-items:center;
+
+color:#243A63;
+
+font-weight:bold;
+
+}
+
+.exit-icon{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:8px 14px;
+  border-radius:999px;
+  background:#f4a621;
+  color:#24395f;
+  text-decoration:none;
+  font-weight:bold;
+  border:none;
+  cursor:pointer;
+}
+
+/* CONTENT */
+
+.wrapper{
+
+padding:20px;
+
+display:grid;
+
+grid-template-columns:2fr 1fr;
+
+gap:15px;
+
+}
+
+.left-column{
+  display:flex;
+  flex-direction:column;
+  gap:15px;
+}
+
+.status-row{
+  display:flex;
+  gap:12px;
+}
+
+.status-card{
+  background:#304C79;
+  padding:12px 14px;
+  border-radius:10px;
+  flex:1;
+}
+
+.status-card .round{
+  font-size:20px;
+  margin-top:6px;
+}
+
+.timer-card{ display:flex; align-items:center; gap:8px; margin-top:6px; }
+
+.question-card{
+  background-image: url("../../assets/CONFETTI.png"), linear-gradient(180deg, rgba(59,0,119,0.92), rgba(36,0,77,0.92));
+  background-size: cover, cover;
+  background-position: center, center;
+  background-repeat: no-repeat, no-repeat;
+  border-radius:15px;
+  padding:20px;
+}
+
+.options-list{ margin-top:18px; }
+.options-list .option{ background:#395686; padding:14px; border-radius:12px; margin-bottom:12px; display:flex; gap:15px; cursor:pointer; border:none; color:white; width:100%; text-align:left; transition: all 0.2s; }
+.options-list .option:hover:not(:disabled){ transform:scale(1.02); }
+.options-list .option:disabled{ opacity:0.8; cursor:not-allowed; }
+
+/* OLD LEFT STYLES - keeping for compatibility */
+
+.quiz{
+
+background-image: url("../../assets/CONFETTI.png"), linear-gradient(180deg, rgba(59,0,119,0.92), rgba(36,0,77,0.92));
+background-size: cover, cover;
+background-position: center, center;
+background-repeat: no-repeat, no-repeat;
+
+border-radius:15px;
+
+display:grid;
+
+grid-template-columns:3fr 1fr;
+
+gap:20px;
+
+}
+
+.round{
+
+color:#F5A623;
+
+font-size:28px;
+
+font-weight:bold;
+
+margin-bottom:50px;
+
+}
+
+.badge{
+
+display:inline-block;
+
+background:#314B77;
+
+padding:8px 18px;
+
+border-radius:20px;
+
+font-size:14px;
+
+margin-bottom:15px;
+
+}
+
+.question{
+
+font-size:30px;
+
+font-weight:bold;
+
+margin-bottom:30px;
+
+}
+
+.option{
+
+background:#395686;
+
+padding:18px;
+
+border-radius:12px;
+
+margin-bottom:12px;
+
+display:flex;
+
+gap:15px;
+
+cursor:pointer;
+
+}
+
+.option:hover{
+
+transform:scale(1.02);
+
+}
+
+.circle{
+
+width:35px;
+
+height:35px;
+
+border-radius:50%;
+
+background:#A3D7FF;
+
+display:flex;
+
+justify-content:center;
+
+align-items:center;
+
+color:#25004E;
+
+font-weight:bold;
+
+}
+
+/* RIGHT SCORE */
+
+.side{
+
+display:flex;
+
+flex-direction:column;
+
+justify-content:center;
+
+align-items:center;
+
+border-left:4px solid #31A4FF;
+
+gap:50px;
+
+}
+
+.timer{
+
+text-align:center;
+
+}
+
+.time{
+
+font-size:60px;
+
+color:#FF6B45;
+
+font-weight:bold;
+
+}
+
+.point{
+
+font-size:60px;
+
+color:#00FF88;
+
+}
+
+/* LEADERBOARD */
+
+.board{
+
+background:linear-gradient(
+180deg,
+#3B0077,
+#24004D
+);
+
+padding:20px;
+
+border-radius:15px;
+
+}
+
+.board-title{
+
+font-size:36px;
+
+color:#F5A623;
+
+margin-bottom:20px;
+
+}
+
+.top3{
+
+display:flex;
+
+justify-content:center;
+
+align-items:flex-end;
+
+margin-bottom:20px;
+
+}
+
+.rank{
+
+width:90px;
+
+text-align:center;
+
+}
+
+.box{
+
+padding:20px;
+
+border-radius:10px;
+
+font-size:40px;
+
+font-weight:bold;
+
+}
+
+.two{
+background:#6673A7;
+height:90px;
+}
+
+.one{
+background:#F5B42A;
+height:140px;
+}
+
+.three{
+background:#7B3500;
+height:70px;
+}
+
+.player{
+
+padding:12px;
+
+display:flex;
+
+justify-content:space-between;
+
+}
+
+.more{
+
+width:100%;
+
+padding:12px;
+
+border:none;
+
+border-radius:20px;
+
+background:#F5B42A;
+
+margin-top:10px;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+
+<div class="navbar">
+
+<div class="left">
+
+<div class="logo">
+NQUIZYUK
+</div>
+
+<div class="info">
+
+<div class="small">
+Room Code
+</div>
+
+<div class="orange">
+AN050524
+</div>
+
+</div>
+
+<div class="info">
+
+<div class="small">
+Topik
+</div>
+
+<div class="orange">
+Tebak Gambar
+</div>
+
+</div>
+
+</div>
+
+<div class="menu">
+
+<div class="orange">
+Quiz
+</div>
+
+<div>
+AI Assistance
+</div>
+
+<div class="avatar">
+NR
+</div>
+
+</div>
+
+</div>
+
+<!-- CONTENT -->
+
+<div class="wrapper">
+
+  <!-- LEFT COLUMN -->
+  <div class="left-column">
+
+    <div class="status-row">
+      <div class="status-card">
+        <div class="small">Posisi</div>
+        <div class="round" id="posisiDisplay">-</div>
+      </div>
+      <div class="status-card">
+        <div class="small">Waktu</div>
+        <div class="timer-card">⏱ <div class="time" id="questionTimer">00:12</div></div>
+      </div>
+      <div class="status-card">
+        <div class="small">Skor</div>
+        <div class="point" id="myScore">0</div>
+      </div>
+    </div>
+
+    <div class="question-card">
+      <div class="badge">SOAL</div>
+      <div id="questionImageWrap" class="question-image" style="text-align:center; margin:20px 0;">
+        <img id="questionImage" src="../../assets/LOGO TEBAK GAMBAR.png" alt="soal" style="max-width:100%;height:auto;border-radius:10px;" />
+      </div>
+      <div id="options" class="options-list"></div>
+    </div>
+
+  </div>
+
+  <!-- RIGHT COLUMN: Leaderboard -->
+  <div class="board" id="leaderboard">
+
+    <div class="board-title">🏆 LEADERBOARD</div>
+
+    <div id="leaderList">
+      <div class="player"><span>Belum ada skor ditampilkan</span></div>
+    </div>
+
+    <button class="more">Lihat selengkapnya</button>
+
+  </div>
+
+</div>
+
+
+<script>
+// Basic interactive flow for Tebak Gambar
+const questionTimerEl = document.getElementById('questionTimer');
+const myScoreEl = document.getElementById('myScore');
+const optionsEl = document.getElementById('options');
+const questionImage = document.getElementById('questionImage');
+const leaderList = document.getElementById('leaderList');
+const posisiDisplay = document.getElementById('posisiDisplay');
+
+// sample questions (image paths should be replaced with real ones)
+const questions = [
+  { image: '../../assets/LOGO TEBAK GAMBAR.png', choices: ['Anjing','Kucing','Burung','Ikan'], correct: 1 },
+  { image: '../../assets/LOGO TEBAK GAMBAR.png', choices: ['Mobil','Motor','Sepeda','Pesawat'], correct: 2 },
+  { image: '../../assets/LOGO TEBAK GAMBAR.png', choices: ['Laptop','Tablet','HP','TV'], correct: 0 }
+];
+
+let current = 0;
+let questionDuration = Number(localStorage.getItem('durasi')) || 12; // seconds
+let timerId = null;
+let timeLeft = questionDuration;
+
+// leaderboard state
+let leaderboard = {};
+
+// identify current user
+const userInfo = JSON.parse(sessionStorage.getItem('userInfo') || '{}');
+const myName = userInfo.username || 'You';
+if(!leaderboard[myName]) leaderboard[myName] = 0;
+
+function renderLeaderboard(){
+  const entries = Object.entries(leaderboard).sort((a,b)=>b[1]-a[1]);
+  leaderList.innerHTML = entries.map(([name,score],i)=>{
+    if(i < 3) return ''; // top 3 already shown
+    return `<div class="player"><span>${i+1}. ${name}</span><span>${score}</span></div>`;
+  }).join('');
+}
+
+function renderQuestion(){
+  const q = questions[current];
+  questionImage.src = q.image;
+  posisiDisplay.textContent = (current + 1) + '/' + questions.length;
+  optionsEl.innerHTML = '';
+  q.choices.forEach((c,idx)=>{
+    const btn = document.createElement('button');
+    btn.className = 'option';
+    btn.innerHTML = `<div class="circle">${String.fromCharCode(65+idx)}</div> ${c}`;
+    btn.onclick = ()=>selectAnswer(idx, btn);
+    optionsEl.appendChild(btn);
+  });
+  // reset timer
+  resetTimer();
+}
+
+function resetTimer(){
+  clearInterval(timerId);
+  timeLeft = questionDuration;
+  questionTimerEl.textContent = '00:' + String(timeLeft).padStart(2,'0');
+  timerId = setInterval(()=>{
+    timeLeft--;
+    questionTimerEl.textContent = '00:' + String(timeLeft).padStart(2,'0');
+    if(timeLeft<=0){
+      clearInterval(timerId);
+      autoNext();
+    }
+  },1000);
+}
+
+function selectAnswer(idx, btn){
+  // disable buttons
+  document.querySelectorAll('.option').forEach(b=>b.disabled=true);
+  const correct = questions[current].correct;
+  if(idx === correct){
+    // increase score
+    leaderboard[myName] = (leaderboard[myName]||0) + 10;
+    myScoreEl.textContent = leaderboard[myName];
+    btn.style.background = '#10B981';
+  } else {
+    btn.style.background = '#FF6B6B';
+    // highlight correct
+    const all = document.querySelectorAll('.option');
+    all[correct].style.background = '#10B981';
+  }
+  renderLeaderboard();
+  // auto next after short delay
+  clearInterval(timerId);
+  setTimeout(()=>{ nextQuestion(); }, 1200);
+}
+
+function autoNext(){
+  // mark unanswered as incorrect, then next
+  const correct = questions[current].correct;
+  document.querySelectorAll('.option').forEach((b, i)=>{
+    b.disabled = true;
+    if(i===correct) b.style.background = '#10B981';
+  });
+  setTimeout(()=>{ nextQuestion(); }, 900);
+}
+
+function nextQuestion(){
+  current++;
+  if(current >= questions.length){
+    // end quiz - show summary or back to dashboard
+    alert('Kuis selesai. Skor Anda: ' + (leaderboard[myName]||0));
+    window.location.href='../../index.html';
+    return;
+  }
+  renderQuestion();
+}
+
+// initialize leaderboard with current user only
+leaderboard[myName] = leaderboard[myName] || 0;
+renderLeaderboard();
+renderQuestion();
+
+</script>
+
+</body>
+
+</html>

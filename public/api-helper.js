@@ -1,0 +1,95 @@
+// API Helper untuk komunikasi dengan backend
+
+// Auto-detect API URL (lokal atau production)
+const API_URL = window.location.hostname === 'localhost' 
+  ? 'http://localhost:3000/api'
+  : `${window.location.origin}/api`;
+
+// ===== QUIZ ENDPOINTS =====
+
+// Ambil semua quiz
+async function getAllQuiz() {
+  try {
+    const response = await fetch(`${API_URL}/quiz`);
+    if (!response.ok) throw new Error('Gagal mengambil data quiz');
+    return await response.json();
+  } catch (error) {
+    console.error('Error:', error);
+    return [];
+  }
+}
+
+// Ambil quiz by ID
+async function getQuizById(quizId) {
+  try {
+    const response = await fetch(`${API_URL}/quiz/${quizId}`);
+    if (!response.ok) throw new Error('Quiz tidak ditemukan');
+    return await response.json();
+  } catch (error) {
+    console.error('Error:', error);
+    return null;
+  }
+}
+
+// Buat quiz baru
+async function createQuiz(title, description, createdBy) {
+  try {
+    const response = await fetch(`${API_URL}/quiz`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title, description, created_by: createdBy })
+    });
+    if (!response.ok) throw new Error('Gagal membuat quiz');
+    return await response.json();
+  } catch (error) {
+    console.error('Error:', error);
+    return null;
+  }
+}
+
+// ===== QUESTIONS ENDPOINTS =====
+
+// Ambil soal quiz
+async function getQuestions(quizId) {
+  try {
+    const response = await fetch(`${API_URL}/questions/${quizId}`);
+    if (!response.ok) throw new Error('Gagal mengambil soal');
+    return await response.json();
+  } catch (error) {
+    console.error('Error:', error);
+    return [];
+  }
+}
+
+// ===== ANSWERS ENDPOINTS =====
+
+// Simpan jawaban
+async function saveAnswer(studentId, questionId, answer) {
+  try {
+    const response = await fetch(`${API_URL}/answers`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        student_id: studentId, 
+        question_id: questionId, 
+        answer: answer 
+      })
+    });
+    if (!response.ok) throw new Error('Gagal menyimpan jawaban');
+    return await response.json();
+  } catch (error) {
+    console.error('Error:', error);
+    return null;
+  }
+}
+
+// Export untuk digunakan di file lain
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    getAllQuiz,
+    getQuizById,
+    createQuiz,
+    getQuestions,
+    saveAnswer
+  };
+}

@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contoh Implementasi API - NQUIZYUK</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    body {
+      background: #314a76;
+      color: white;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      color: #f4a621;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    .section {
+      background: #24395f;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+    }
+
+    h2 {
+      color: #f4a621;
+      margin-bottom: 15px;
+      font-size: 18px;
+      border-bottom: 2px solid #f4a621;
+      padding-bottom: 10px;
+    }
+
+    button {
+      background: #f4a621;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      margin: 10px 5px 10px 0;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background: #e89a1a;
+    }
+
+    .quiz-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 15px;
+      margin-top: 15px;
+    }
+
+    .quiz-card {
+      background: #314a76;
+      padding: 15px;
+      border-radius: 8px;
+      border-left: 4px solid #f4a621;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .quiz-card:hover {
+      transform: translateX(5px);
+    }
+
+    .quiz-card h3 {
+      color: #f4a621;
+      margin-bottom: 5px;
+    }
+
+    .quiz-card p {
+      font-size: 14px;
+      color: #ccc;
+    }
+
+    .output {
+      background: #1a2332;
+      padding: 15px;
+      border-radius: 5px;
+      margin-top: 15px;
+      border: 1px solid #f4a621;
+      max-height: 300px;
+      overflow-y: auto;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    .loading {
+      color: #f4a621;
+      font-style: italic;
+    }
+
+    .error {
+      color: #ff6b6b;
+    }
+
+    .success {
+      color: #51cf66;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 10px;
+      margin: 5px 0 10px 0;
+      border: 1px solid #f4a621;
+      border-radius: 5px;
+      background: #1a2332;
+      color: white;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    form {
+      background: #1a2332;
+      padding: 15px;
+      border-radius: 5px;
+      margin-top: 15px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📚 Contoh Implementasi API NQUIZYUK</h1>
+
+    <!-- SECTION 1: Ambil Semua Quiz -->
+    <div class="section">
+      <h2>1️⃣ Ambil Semua Quiz</h2>
+      <button onclick="fetchAllQuiz()">Klik untuk Ambil Data Quiz</button>
+      <div id="allQuizOutput" class="output" style="display:none;"></div>
+    </div>
+
+    <!-- SECTION 2: Lihat Quiz List -->
+    <div class="section">
+      <h2>2️⃣ Daftar Quiz</h2>
+      <button onclick="loadQuizList()">Load Quiz List</button>
+      <div id="quizList" class="quiz-list"></div>
+    </div>
+
+    <!-- SECTION 3: Ambil Soal Quiz -->
+    <div class="section">
+      <h2>3️⃣ Ambil Soal Quiz</h2>
+      <input type="number" id="quizIdInput" placeholder="Masukkan ID Quiz" value="1">
+      <button onclick="fetchQuestions()">Ambil Soal</button>
+      <div id="questionsOutput" class="output" style="display:none;"></div>
+    </div>
+
+    <!-- SECTION 4: Buat Quiz Baru -->
+    <div class="section">
+      <h2>4️⃣ Buat Quiz Baru</h2>
+      <form onsubmit="handleCreateQuiz(event)">
+        <input type="text" id="quizTitle" placeholder="Judul Quiz" required>
+        <textarea id="quizDescription" placeholder="Deskripsi Quiz" rows="3"></textarea>
+        <input type="number" id="createdBy" placeholder="ID Guru" value="1" required>
+        <button type="submit">Buat Quiz</button>
+      </form>
+      <div id="createOutput" class="output" style="display:none;"></div>
+    </div>
+
+    <!-- SECTION 5: Simpan Jawaban -->
+    <div class="section">
+      <h2>5️⃣ Simpan Jawaban Siswa</h2>
+      <form onsubmit="handleSaveAnswer(event)">
+        <input type="number" id="studentId" placeholder="ID Siswa" value="1" required>
+        <input type="number" id="questionId" placeholder="ID Soal" value="1" required>
+        <input type="text" id="answerText" placeholder="Jawaban" required>
+        <button type="submit">Simpan Jawaban</button>
+      </form>
+      <div id="answerOutput" class="output" style="display:none;"></div>
+    </div>
+  </div>
+
+  <!-- Load API Helper -->
+  <script src="../../public/api-helper.js"></script>
+
+  <script>
+    // Utility function untuk menampilkan output
+    function showOutput(elementId, message, isError = false) {
+      const el = document.getElementById(elementId);
+      el.textContent = message;
+      el.style.display = 'block';
+      el.className = 'output' + (isError ? ' error' : ' success');
+    }
+
+    // 1. Ambil Semua Quiz
+    async function fetchAllQuiz() {
+      const el = document.getElementById('allQuizOutput');
+      showOutput('allQuizOutput', 'Loading...');
+      
+      const data = await getAllQuiz();
+      showOutput('allQuizOutput', JSON.stringify(data, null, 2));
+    }
+
+    // 2. Load Quiz List
+    async function loadQuizList() {
+      const listEl = document.getElementById('quizList');
+      listEl.innerHTML = '<p class="loading">Loading...</p>';
+      
+      const quizzes = await getAllQuiz();
+      
+      if (quizzes.length === 0) {
+        listEl.innerHTML = '<p class="error">Tidak ada quiz ditemukan</p>';
+        return;
+      }
+
+      listEl.innerHTML = quizzes.map(quiz => `
+        <div class="quiz-card" onclick="selectQuiz(${quiz.id})">
+          <h3>${quiz.title}</h3>
+          <p>${quiz.description || 'Tidak ada deskripsi'}</p>
+          <p style="font-size: 12px; margin-top: 10px; color: #888;">ID: ${quiz.id}</p>
+        </div>
+      `).join('');
+    }
+
+    function selectQuiz(quizId) {
+      document.getElementById('quizIdInput').value = quizId;
+      alert(`Quiz ID ${quizId} dipilih. Klik "Ambil Soal" untuk melihat pertanyaannya!`);
+    }
+
+    // 3. Ambil Soal Quiz
+    async function fetchQuestions() {
+      const quizId = document.getElementById('quizIdInput').value;
+      if (!quizId) {
+        showOutput('questionsOutput', 'Masukkan ID Quiz terlebih dahulu!', true);
+        return;
+      }
+
+      showOutput('questionsOutput', 'Loading...');
+      const data = await getQuestions(quizId);
+      showOutput('questionsOutput', JSON.stringify(data, null, 2));
+    }
+
+    // 4. Buat Quiz Baru
+    async function handleCreateQuiz(event) {
+      event.preventDefault();
+      
+      const title = document.getElementById('quizTitle').value;
+      const description = document.getElementById('quizDescription').value;
+      const createdBy = document.getElementById('createdBy').value;
+
+      showOutput('createOutput', 'Creating...');
+      const result = await createQuiz(title, description, createdBy);
+      
+      if (result) {
+        showOutput('createOutput', JSON.stringify(result, null, 2));
+        document.getElementById('quizTitle').value = '';
+        document.getElementById('quizDescription').value = '';
+      } else {
+        showOutput('createOutput', 'Gagal membuat quiz!', true);
+      }
+    }
+
+    // 5. Simpan Jawaban
+    async function handleSaveAnswer(event) {
+      event.preventDefault();
+      
+      const studentId = document.getElementById('studentId').value;
+      const questionId = document.getElementById('questionId').value;
+      const answer = document.getElementById('answerText').value;
+
+      showOutput('answerOutput', 'Saving...');
+      const result = await saveAnswer(studentId, questionId, answer);
+      
+      if (result) {
+        showOutput('answerOutput', JSON.stringify(result, null, 2));
+        document.getElementById('answerText').value = '';
+      } else {
+        showOutput('answerOutput', 'Gagal menyimpan jawaban!', true);
+      }
+    }
+  </script>
+</body>
+</html>

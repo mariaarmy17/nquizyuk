@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pilih Jenis Quiz - NQUIZYUK</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Segoe UI',sans-serif;
+}
+
+body{
+    background:#314a76;
+}
+
+/* NAVBAR */
+
+.navbar{
+    background:#24395f;
+    height:70px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:0 60px;
+}
+
+.logo{
+    color:#f4a621;
+    font-size:24px;
+    font-weight:bold;
+}
+
+.menu{
+    display:flex;
+    gap:30px;
+    align-items:center;
+}
+
+.menu a{
+    color:white;
+    text-decoration:none;
+}
+
+.login-btn{
+    background:#f4a621;
+    border:none;
+    color:white;
+    padding:10px 20px;
+    border-radius:5px;
+    cursor:pointer;
+}
+
+.exit-icon{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:8px 14px;
+    border-radius:999px;
+    background:#f4a621;
+    color:#24395f;
+    text-decoration:none;
+    font-weight:bold;
+    border:none;
+    cursor:pointer;
+}
+
+/* CONTENT */
+
+.container{
+    padding:40px 60px;
+}
+
+.title{
+    color:white;
+    font-size:32px;
+    font-weight:bold;
+    margin-bottom:10px;
+}
+
+.subtitle{
+    color:#d6d6d6;
+    margin-bottom:40px;
+}
+
+.quiz-grid{
+    display:flex;
+    gap:25px;
+    flex-wrap:wrap;
+    justify-content:center;
+}
+
+/* CARD */
+
+.card{
+    width:250px;
+    border-radius:20px;
+    padding:20px;
+    color:white;
+    box-shadow:0 8px 20px rgba(0,0,0,0.3);
+}
+
+.card h2{
+    text-align:center;
+    margin-top:10px;
+    margin-bottom:20px;
+    line-height:1.2;
+}
+
+.number{
+    font-size:18px;
+    font-weight:bold;
+}
+
+.icon{
+    font-size:55px;
+    text-align:center;
+    margin-bottom:15px;
+}
+
+.feature{
+    margin:12px 0;
+    font-size:15px;
+}
+
+.quiz-thumb{
+    width:100%;
+    height:150px;
+    object-fit:cover;
+    border-radius:16px;
+    margin-bottom:16px;
+    border:2px solid rgba(255,255,255,0.12);
+}
+
+.select-btn{
+    width:100%;
+    margin-top:20px;
+    padding:12px;
+    border:none;
+    border-radius:8px;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+/* WARNA CARD */
+
+.gameshow{
+    background:linear-gradient(180deg,#8b2cff,#5c00b8);
+}
+
+.tebak{
+    background:linear-gradient(180deg,#0077ff,#00bfff);
+}
+
+.escape{
+    background:linear-gradient(180deg,#00a86b,#006b46);
+}
+
+.wheel{
+    background:linear-gradient(180deg,#ff9d00,#ff6200);
+}
+</style>
+</head>
+
+<body>
+
+<header class="navbar">
+<div class="logo">NQUIZYUK</div>
+
+<div class="menu">
+<a href="../../index.html">Beranda</a>
+<a href="pilih-quiz.html">Quiz</a>
+<a href="ai-assistance.html">AI Assistance</a>
+
+<button class="login-btn">
+Login
+</button>
+</div>
+</header>
+
+<div class="container">
+
+<h1 class="title">
+PILIH JENIS QUIZ
+</h1>
+
+<p class="subtitle">
+Pilih format kuis yang ingin kamu buat untuk kelasmu
+</p>
+
+<div class="quiz-grid">
+
+<!-- GAME SHOW -->
+
+<div class="card gameshow">
+
+<div class="number">
+1 ✦✦●
+</div>
+
+<h2>
+QUIZ<br>
+GAME SHOW
+</h2>
+
+<img class="quiz-thumb" src="../../assets/LOGO QUIZ GAME SHOW.png" alt="Quiz Game Show">
+
+<div class="feature">👤 Mode individu</div>
+<div class="feature">⚡ Real-time ranking</div>
+<div class="feature">🎯 Bonus kecepatan</div>
+
+<button class="select-btn" onclick="chooseQuiz('gameshow')">
+PILIH QUIZ
+</button>
+
+</div>
+
+<!-- TEBAK GAMBAR -->
+
+<div class="card tebak">
+
+<div class="number">
+2 ✦✦
+</div>
+
+<h2>
+QUIZ<br>
+TEBAK<br>
+GAMBAR
+</h2>
+
+<img class="quiz-thumb" src="../../assets/LOGO TEBAK GAMBAR.png" alt="Quiz Tebak Gambar">
+
+<div class="feature">🖼️ Berbasis gambar</div>
+<div class="feature">⏱️ Waktu terbatas</div>
+<div class="feature">🏆 Skor tertinggi</div>
+
+<button class="select-btn" onclick="chooseQuiz('tebak')">
+PILIH QUIZ
+</button>
+
+</div>
+
+<!-- ESCAPE ROOM -->
+
+<div class="card escape">
+
+<div class="number">
+3 ✦✦
+</div>
+
+<h2>
+QUIZ<br>
+ESCAPE<br>
+ROOM
+</h2>
+
+<img class="quiz-thumb" src="../../assets/LOGO ESCAPE ROOM.png" alt="Quiz Escape Room">
+
+<div class="feature">🔐 Teka-teki & puzzle</div>
+<div class="feature">📈 Level bertahap</div>
+<div class="feature">👥 Multiplayer</div>
+
+<button class="select-btn" onclick="chooseQuiz('escape')">
+PILIH QUIZ
+</button>
+
+</div>
+
+<!-- WHEEL SPIN -->
+
+<div class="card wheel">
+
+<div class="number">
+4 ✦✦
+</div>
+
+<h2>
+QUIZ<br>
+WHEEL<br>
+SPIN
+</h2>
+
+<img class="quiz-thumb" src="../../assets/LOGO WHEEL SPIN.png" alt="Quiz Wheel Spin">
+
+<div class="feature">🎡 Kategori acak</div>
+<div class="feature">⏱️ Waktu terbatas</div>
+<div class="feature">❌ Kategori hilang</div>
+
+<button class="select-btn" onclick="chooseQuiz('wheel')">
+PILIH QUIZ
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+</body>
+<script src="../../public/api-helper.js"></script>
+<script>
+// Pilih jenis quiz template
+function chooseQuiz(type) {
+    try {
+        sessionStorage.setItem('selectedQuizType', type);
+    } catch (e) {
+        localStorage.setItem('selectedQuizType', type);
+    }
+    window.location.href = 'buat-kuis.html';
+}
+</script>
+</html>

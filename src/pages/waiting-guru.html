@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Waiting Room Guru - NQUIZYUK</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Segoe UI',sans-serif;
+}
+
+body{
+    background:#314a76;
+    color:white;
+}
+
+/* NAVBAR */
+
+.navbar{
+    height:80px;
+    background:#2d456f;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:0 60px;
+    border-bottom:1px solid rgba(255,255,255,.1);
+}
+
+.logo{
+    color:#f4a621;
+    font-size:22px;
+    font-weight:bold;
+}
+
+.nav-right{
+    display:flex;
+    align-items:center;
+    gap:15px;
+}
+
+.leave-btn{
+    background:#4c638c;
+    border:none;
+    color:white;
+    padding:12px 20px;
+    border-radius:12px;
+    cursor:pointer;
+    font-size:15px;
+}
+
+.avatar{
+    width:45px;
+    height:45px;
+    border-radius:50%;
+    background:#f4a621;
+    color:#23395d;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-weight:bold;
+}
+
+/* CONTENT */
+
+.container{
+    display:flex;
+    gap:25px;
+    padding:20px;
+}
+
+/* LEFT */
+
+.left-panel{
+    flex:2;
+}
+
+.room-box{
+    padding:40px;
+}
+
+.room-title{
+    color:#f4a621;
+    font-size:18px;
+    margin-bottom:10px;
+}
+
+.room-code{
+    font-size:55px;
+    color:#f4a621;
+    font-weight:bold;
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.copy-btn{
+    background:none;
+    border:none;
+    color:white;
+    cursor:pointer;
+    font-size:25px;
+}
+
+.room-desc{
+    margin-top:10px;
+    color:#ddd;
+}
+
+.waiting-box{
+    margin-top:30px;
+    background:#566c96;
+    border-radius:15px;
+    padding:30px;
+}
+
+.waiting-text{
+    color:#f4a621;
+    font-size:28px;
+    margin-bottom:30px;
+}
+
+.stats{
+    display:flex;
+    gap:20px;
+}
+
+.stat-card{
+    flex:1;
+    background:#2e456f;
+    border-radius:12px;
+    padding:20px;
+}
+
+.stat-number{
+    color:#f4a621;
+    font-size:35px;
+    font-weight:bold;
+}
+
+.stat-label{
+    color:#ddd;
+    margin-top:5px;
+}
+
+/* RIGHT */
+
+.right-panel{
+    width:360px;
+    background:#2d456f;
+    border-radius:15px;
+    padding:20px;
+}
+
+.participant-title{
+    color:#f4a621;
+    font-size:28px;
+    margin-bottom:20px;
+}
+
+.participant{
+    background:#314a76;
+    padding:12px;
+    border-radius:10px;
+    margin-bottom:10px;
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.participant-avatar{
+    width:32px;
+    height:32px;
+    border-radius:50%;
+    background:white;
+    color:#23395d;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:12px;
+    font-weight:bold;
+}
+
+.start-btn{
+    width:100%;
+    margin-top:20px;
+    background:#f4a621;
+    border:none;
+    color:white;
+    padding:15px;
+    border-radius:10px;
+    cursor:pointer;
+    font-size:16px;
+    font-weight:bold;
+}
+
+.start-btn:hover{
+    opacity:.9;
+}
+
+@media(max-width:900px){
+
+.container{
+    flex-direction:column;
+}
+
+.right-panel{
+    width:100%;
+}
+
+.stats{
+    flex-direction:column;
+}
+
+.room-code{
+    font-size:40px;
+}
+
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+
+<header class="navbar">
+
+<div class="logo">
+NQUIZYUK
+</div>
+
+<div class="nav-right">
+
+<button class="leave-btn" onclick="keluarRoom()">
+🚪 Keluar room
+</button>
+
+<div class="avatar">
+NR
+</div>
+
+</div>
+
+</header>
+
+<!-- CONTENT -->
+
+<div class="container">
+
+<!-- LEFT -->
+
+<div class="left-panel">
+
+<div class="room-box">
+
+<div class="room-title">
+Room code
+</div>
+
+<div class="room-code">
+<span id="roomCode">ANO50524</span>
+
+<button class="copy-btn" onclick="copyCode()">
+📋
+</button>
+</div>
+
+<div class="room-desc">
+Bagikan code ini ke siswa untuk bergabung
+</div>
+
+<div class="waiting-box">
+
+<div class="waiting-text">
+🕒 Menunggu peserta...
+</div>
+
+<div class="stats">
+
+<div class="stat-card">
+<div class="stat-number" id="joinedCount">
+12/20
+</div>
+
+<div class="stat-label">
+Peserta bergabung
+</div>
+</div>
+
+<div class="stat-card">
+<div class="stat-number">
+10
+</div>
+
+<div class="stat-label">
+Jumlah soal
+</div>
+</div>
+
+<div class="stat-card">
+<div class="stat-number">
+200
+</div>
+
+<div class="stat-label">
+Poin maksimal
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- RIGHT -->
+
+<div class="right-panel">
+
+<div class="participant-title">
+👥 Daftar peserta
+</div>
+
+<div id="participantList">
+  <div class="participant">
+    <div class="participant-avatar">-</div>
+    Belum ada peserta terdaftar
+  </div>
+</div>
+
+<button class="start-btn" onclick="mulaiQuiz()">
+MULAI QUIZ
+</button>
+
+</div>
+
+</div>
+
+<script>
+
+function copyCode(){
+
+const code =
+document.getElementById("roomCode").innerText;
+
+navigator.clipboard.writeText(code);
+
+alert("Room code berhasil disalin : " + code);
+
+}
+
+function keluarRoom(){
+
+if(confirm("Keluar dari room?")){
+  // Hapus active room code dari localStorage saat keluar
+  localStorage.removeItem('activeRoomCode');
+  window.location.href =
+"../../index.html";
+
+}
+
+}
+
+function mulaiQuiz(){
+
+    // Redirect to the appropriate countdown/quiz page based on teacher selection
+    const selected = sessionStorage.getItem('selectedQuiz') || localStorage.getItem('selectedQuiz') || '';
+    let target = 'countdown-gameshow.html';
+    if(selected === 'tebak'){
+        target = 'countdown-tebakgambar.html';
+    } else if(selected === 'wheel'){
+        target = 'wheel-spin.html';
+    } else if(selected === 'escape'){
+        // fallback if no specific escape countdown; go to quiz-gameshow for now
+        target = 'quiz-gameshow.html';
+    } else if(selected === 'gameshow'){
+        target = 'countdown-gameshow.html';
+    }
+
+    // clear selection after starting
+    try{ sessionStorage.removeItem('selectedQuiz'); }catch(e){}
+    try{ localStorage.removeItem('selectedQuiz'); }catch(e){}
+
+    window.location.href = target;
+
+}
+
+function getKey(code){
+  return 'waitingStudents_' + code.trim().toUpperCase();
+}
+
+function loadParticipants(code){
+  try{
+    const raw = localStorage.getItem(getKey(code));
+    return raw ? JSON.parse(raw) : [];
+  } catch(e){
+    return [];
+  }
+}
+
+function renderParticipants(list){
+  const participantList = document.getElementById('participantList');
+  if(!participantList) return;
+  if(!list.length){
+    participantList.innerHTML = '<div class="participant"><div class="participant-avatar">-</div>Belum ada peserta terdaftar</div>';
+    return;
+  }
+  participantList.innerHTML = list.map(p=>{
+    const initials = p.name ? p.name.slice(0,2).toUpperCase() : '-';
+    return `<div class="participant"><div class="participant-avatar">${initials}</div>${p.name || 'Peserta'}</div>`;
+  }).join('');
+}
+
+function updateJoinedCount(count){
+  const joinedCountEl = document.getElementById('joinedCount');
+  if(joinedCountEl){
+    joinedCountEl.innerText = count + '/20';
+  }
+}
+
+function refreshRoomParticipants(){
+  const roomCode = document.getElementById('roomCode').innerText.trim();
+  if(!roomCode) return;
+  const list = loadParticipants(roomCode);
+  renderParticipants(list);
+  updateJoinedCount(list.length);
+}
+
+// Simpan room code ke localStorage saat halaman dibuka dan muat peserta
+document.addEventListener('DOMContentLoaded', function(){
+  const roomCode = document.getElementById("roomCode").innerText.trim();
+  if(roomCode){
+    localStorage.setItem('activeRoomCode', roomCode);
+    refreshRoomParticipants();
+    setInterval(refreshRoomParticipants, 2000);
+  }
+});
+
+</script>
+
+</body>
+</html>

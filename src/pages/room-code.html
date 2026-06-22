@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Masukkan Room Code - NQUIZYUK</title>
+  <link rel="stylesheet" href="../../public/style.css">
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <header class="navbar">
+    <div class="logo">
+      NQUIZYUK
+    </div>
+    <nav>
+      <a href="../../index.html">Beranda</a>
+    </nav>
+  </header>
+
+  <!-- ROOM CODE INPUT SECTION -->
+  <section class="page-shell">
+    <div class="page-card">
+      <div class="page-header">
+        <div>
+          <span class="label">Gabung Quiz</span>
+          <h1 class="page-title">Masukkan Room Code</h1>
+        </div>
+      </div>
+
+      <p class="page-copy">Minta room code kepada guru untuk mengikuti quiz.</p>
+
+      <div class="note-card">
+        Pastikan Anda menggunakan kode room yang benar sesuai yang diberikan guru.
+      </div>
+
+      <div class="form-group">
+        <label>Room Code</label>
+        <input id="roomCodeInput" type="text" placeholder="Masukkan kode room" class="page-input">
+      </div>
+
+      <button class="siswa" id="submitRoomCodeBtn">Lanjutkan</button>
+      <p id="roomMessage" class="status-text"></p>
+    </div>
+  </section>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function(){
+      const roomInput = document.getElementById('roomCodeInput');
+      const submitBtn = document.getElementById('submitRoomCodeBtn');
+      const messageEl = document.getElementById('roomMessage');
+      const logoutBtn = document.getElementById('logoutBtn');
+
+      // Load user info dari session storage
+      const userInfo = sessionStorage.getItem('userInfo');
+      if(!userInfo){
+        alert('Silakan login terlebih dahulu');
+        window.location.href = '../../index.html';
+        return;
+      }
+
+      submitBtn.addEventListener('click', function(){
+        const code = roomInput.value.trim().toUpperCase();
+        
+        if(!code){
+          alert('Masukkan room code terlebih dahulu');
+          return;
+        }
+
+        // Simpan room code ke session storage
+        sessionStorage.setItem('currentRoomCode', code);
+        
+        // Redirect ke halaman pilih quiz
+        window.location.href = 'pilih-quiz.html';
+      });
+
+      if (logoutBtn) {
+        logoutBtn.addEventListener('click', function(){
+          sessionStorage.clear();
+          window.location.href = '../../index.html';
+        });
+      }
+
+      // Focus pada input
+      roomInput.focus();
+    });
+  </script>
+
+</body>
+</html>

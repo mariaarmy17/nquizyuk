@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Quiz Game Show</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
+body{
+background-color:#243A63;
+color:white;
+}
+
+/* NAVBAR */
+
+.navbar{
+
+height:80px;
+
+background:#263F6A;
+
+display:flex;
+
+justify-content:space-between;
+
+align-items:center;
+
+padding:0 30px;
+
+}
+
+.left{
+
+display:flex;
+
+gap:20px;
+
+align-items:center;
+
+}
+
+.logo{
+
+font-size:30px;
+
+font-weight:bold;
+
+color:#F5A623;
+
+}
+
+.info{
+
+background:#304C79;
+
+padding:10px 14px;
+
+border-radius:10px;
+
+}
+
+.small{
+
+font-size:12px;
+
+}
+
+.orange{
+
+color:#F5A623;
+
+}
+
+.menu{
+
+display:flex;
+
+gap:30px;
+
+align-items:center;
+
+}
+
+.avatar{
+
+width:50px;
+
+height:50px;
+
+border-radius:50%;
+
+background:#F5A623;
+
+display:flex;
+
+justify-content:center;
+
+align-items:center;
+
+color:#243A63;
+
+font-weight:bold;
+
+}
+
+.exit-icon{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:8px 14px;
+  border-radius:999px;
+  background:#f4a621;
+  color:#24395f;
+  text-decoration:none;
+  font-weight:bold;
+  border:none;
+  cursor:pointer;
+}
+
+/* CONTENT */
+
+.wrapper{
+
+padding:20px;
+
+display:grid;
+
+grid-template-columns:2fr 1fr;
+
+gap:15px;
+
+}
+
+.left-column{
+  display:flex;
+  flex-direction:column;
+  gap:15px;
+}
+
+.status-row{
+  display:flex;
+  gap:12px;
+}
+
+.status-card{
+  background-image: url("../../assets/CONFETTI.png"), linear-gradient(180deg, rgba(59,0,119,0.92), rgba(36,0,77,0.92));
+  background-size: cover, cover;
+  background-position: center, center;
+  background-repeat: no-repeat, no-repeat;
+  padding:14px 16px;
+  border-radius:15px;
+  flex:1;
+  min-height:82px;
+}
+
+.status-card .small{
+  font-size:14px;
+  color:#D1D5DB;
+}
+
+.status-card .round,
+.status-card .time,
+.status-card .point{
+  font-size:32px;
+  font-weight:bold;
+  margin-top:10px;
+}
+
+.timer-card{ display:flex; align-items:center; gap:8px; margin-top:6px; justify-content:flex-start; }
+
+.question-card{
+  background-image: url("../../assets/CONFETTI.png"), linear-gradient(180deg, rgba(59,0,119,0.92), rgba(36,0,77,0.92));
+  background-size: cover, cover;
+  background-position: center, center;
+  background-repeat: no-repeat, no-repeat;
+  border-radius:15px;
+  padding:24px;
+}
+
+.options-list{ margin-top:18px; }
+.options-list .option{ background:#395686; padding:18px; border-radius:14px; margin-bottom:14px; display:flex; gap:15px; cursor:pointer; border:none; color:white; font-size:18px; transition: all 0.2s ease; }
+.options-list .option:hover{
+  transform:scale(1.02);
+}
+
+.options-list .option .circle{
+  min-width:36px;
+  min-height:36px;
+  width:36px;
+  height:36px;
+  border-radius:50%;
+  background:#A3D7FF;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  color:#25004E;
+  font-weight:bold;
+}
+
+.question-card .badge{
+  display:inline-block;
+  background:#314B77;
+  padding:8px 18px;
+  border-radius:20px;
+  font-size:14px;
+  margin-bottom:15px;
+}
+
+.question-card .question{
+  font-size:22px;
+  font-weight:bold;
+  margin-bottom:24px;
+}
+
+.round-label{
+  font-size:24px;
+  font-weight:bold;
+  color:#F5A623;
+  margin-bottom:12px;
+}
+
+
+/* LEFT */
+
+.quiz{
+
+background-image: url("../../assets/CONFETTI.png"), linear-gradient(180deg, rgba(59,0,119,0.92), rgba(36,0,77,0.92));
+background-size: cover, cover;
+background-position: center, center;
+background-repeat: no-repeat, no-repeat;
+
+border-radius:15px;
+
+display:grid;
+
+grid-template-columns:3fr 1fr;
+
+gap:20px;
+
+}
+
+.round{
+
+color:#F5A623;
+
+font-size:28px;
+
+font-weight:bold;
+
+margin-bottom:50px;
+
+}
+
+.badge{
+
+display:inline-block;
+
+background:#314B77;
+
+padding:8px 18px;
+
+border-radius:20px;
+
+font-size:14px;
+
+margin-bottom:15px;
+
+}
+
+.question{
+
+font-size:30px;
+
+font-weight:bold;
+
+margin-bottom:30px;
+
+}
+
+.option{
+
+background:#395686;
+
+padding:18px;
+
+border-radius:12px;
+
+margin-bottom:12px;
+
+display:flex;
+
+gap:15px;
+
+cursor:pointer;
+
+}
+
+.option:hover{
+
+transform:scale(1.02);
+
+}
+
+.circle{
+
+width:35px;
+
+height:35px;
+
+border-radius:50%;
+
+background:#A3D7FF;
+
+display:flex;
+
+justify-content:center;
+
+align-items:center;
+
+color:#25004E;
+
+font-weight:bold;
+
+}
+
+/* RIGHT SCORE */
+
+.side{
+
+display:flex;
+
+flex-direction:column;
+
+justify-content:center;
+
+align-items:center;
+
+border-left:4px solid #31A4FF;
+
+gap:50px;
+
+}
+
+.timer{
+
+text-align:center;
+
+}
+
+.time{
+
+font-size:60px;
+
+color:#FF6B45;
+
+font-weight:bold;
+
+}
+
+.point{
+
+font-size:60px;
+
+color:#00FF88;
+
+}
+
+/* LEADERBOARD */
+
+.board{
+
+background-image: url("../../assets/CONFETTI.png"), linear-gradient(
+180deg,
+#3B0077,
+#24004D
+);
+background-size: cover, cover;
+background-position: center, center;
+background-repeat: no-repeat, no-repeat;
+
+padding:20px;
+
+border-radius:15px;
+
+}
+
+.board-title{
+
+font-size:36px;
+
+color:#F5A623;
+
+margin-bottom:20px;
+
+}
+
+.top3{
+
+display:flex;
+
+justify-content:center;
+
+align-items:flex-end;
+
+margin-bottom:20px;
+
+gap:12px;
+
+}
+
+.rank{
+
+width:90px;
+
+text-align:center;
+
+position:relative;
+
+}
+
+.rank .crown{
+  display:block;
+  font-size:24px;
+  margin-bottom:8px;
+}
+
+.box{
+
+padding:20px;
+
+border-radius:10px;
+
+font-size:40px;
+
+font-weight:bold;
+
+}
+
+.two{
+background:#6673A7;
+height:90px;
+}
+
+.one{
+background:#F5B42A;
+height:140px;
+}
+
+.three{
+background:#7B3500;
+height:70px;
+}
+
+.player{
+
+padding:12px;
+
+display:flex;
+
+justify-content:space-between;
+
+}
+
+.more{
+
+width:100%;
+
+padding:12px;
+
+border:none;
+
+border-radius:20px;
+
+background:#F5B42A;
+
+margin-top:10px;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+
+<div class="navbar">
+
+<div class="left">
+
+<div class="logo">
+NQUIZYUK
+</div>
+
+<div class="info">
+
+<div class="small">
+Room Code
+</div>
+
+<div class="orange">
+AN050524
+</div>
+
+</div>
+
+<div class="info">
+
+<div class="small">
+Topik
+</div>
+
+<div class="orange">
+Bahasa Indonesia
+</div>
+
+</div>
+
+</div>
+
+<div class="menu">
+
+<div class="orange">
+Quiz
+</div>
+
+<div>
+AI Assistance
+</div>
+
+<div class="avatar">
+NR
+</div>
+
+</div>
+
+</div>
+
+<!-- CONTENT -->
+
+<div class="wrapper">
+
+  <!-- LEFT COLUMN -->
+  <div class="left-column">
+
+    <div class="status-row">
+      <div class="status-card" id="card1">
+        <div class="small">Posisi</div>
+        <div class="round" id="positionValue">1/20</div>
+      </div>
+      <div class="status-card" id="card2">
+        <div class="small">Waktu</div>
+        <div class="timer-card"><div class="time" id="timer">00:12</div></div>
+      </div>
+      <div class="status-card" id="card3">
+        <div class="small">Skor</div>
+        <div class="point" id="scoreValue">50</div>
+      </div>
+    </div>
+
+    <div class="question-card" id="card4">
+      <div class="round-label" id="roundLabel">Round 1/10</div>
+      <div class="question">Kegiatan yang dilakukan untuk memperbaiki teks yang telah ada. Pernyataan tersebut merupakan pengertian dari?</div>
+
+      <div class="options-list">
+        <div class="option"><div class="circle">A</div> Mengedit teks</div>
+        <div class="option"><div class="circle">B</div> Mengevaluasi teks</div>
+        <div class="option"><div class="circle">C</div> Menelaah teks</div>
+        <div class="option"><div class="circle">D</div> Menilai teks</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- RIGHT COLUMN: Leaderboard (card 5) -->
+  <div class="board" id="card5">
+
+    <div class="board-title">🏆 LEADERBOARD</div>
+
+    <div id="leaderList">
+      <div class="player"><span>Belum ada peserta lain</span></div>
+    </div>
+
+    <button class="more">Lihat selengkapnya</button>
+
+  </div>
+
+</div>
+
+
+<script>
+
+// Load soal dari localStorage
+let daftarSoal = JSON.parse(localStorage.getItem("daftarSoal")) || [];
+let currentQuestionIndex = 0;
+let userAnswers = [];
+
+const positionValueEl = document.getElementById('positionValue');
+const scoreValueEl = document.getElementById('scoreValue');
+const questionDuration = Number(localStorage.getItem('durasi')) || 12;
+let detik = questionDuration;
+let currentPosition = 1;
+let totalPositions = daftarSoal.length || 20;
+let currentScore = Number(localStorage.getItem('userScore') || 50);
+
+function updatePosition(position, total = 20) {
+  currentPosition = position;
+  totalPositions = total;
+  positionValueEl.textContent = `${position}/${total}`;
+}
+
+function updateScore(score) {
+  currentScore = score;
+  scoreValueEl.textContent = score;
+}
+
+function setProgress(position, total, score) {
+  updatePosition(position, total);
+  updateScore(score);
+}
+
+// Tampilkan soal pertama
+function loadQuestion(index) {
+  if (index >= daftarSoal.length) {
+    alert('Kuis selesai!');
+    return;
+  }
+
+  const soal = daftarSoal[index];
+  
+  // Update tampilan
+  document.querySelector('.round-label').textContent = `Round ${index + 1}/${daftarSoal.length}`;
+  document.querySelector('.question').textContent = soal.soal;
+  
+  // Tampilkan opsi jawaban
+  const optionsList = document.querySelector('.options-list');
+  optionsList.innerHTML = '';
+  
+  const letters = ['A', 'B', 'C', 'D'];
+  soal.jawaban.forEach((jawaban, idx) => {
+    if (jawaban.trim()) {
+      const optionEl = document.createElement('div');
+      optionEl.className = 'option';
+      optionEl.innerHTML = `<div class="circle">${letters[idx]}</div> ${jawaban}`;
+      optionEl.onclick = () => selectAnswer(idx, soal.benar, index);
+      optionsList.appendChild(optionEl);
+    }
+  });
+  
+  // Update posisi
+  updatePosition(index + 1, daftarSoal.length);
+}
+
+function selectAnswer(selectedIndex, correctAnswer, questionIndex) {
+  const letters = ['A', 'B', 'C', 'D'];
+  const selectedLetter = letters[selectedIndex];
+  
+  // Simpan jawaban
+  userAnswers.push({
+    question: questionIndex,
+    answer: selectedLetter,
+    correct: selectedLetter === correctAnswer
+  });
+  
+  // Update skor jika benar
+  if (selectedLetter === correctAnswer) {
+    currentScore += 10;
+    updateScore(currentScore);
+  }
+  
+  // Load soal berikutnya setelah 1 detik
+  setTimeout(() => {
+    loadQuestion(questionIndex + 1);
+    resetTimer();
+  }, 1000);
+}
+
+function resetTimer() {
+  detik = questionDuration;
+  timerEl.textContent = '00:' + String(detik).padStart(2, '0');
+}
+
+// initialize card 1 and card 3 values
+updatePosition(currentPosition, totalPositions);
+updateScore(currentScore);
+
+const timerEl = document.getElementById('timer');
+
+timerEl.textContent = '00:' + String(detik).padStart(2, '0');
+
+const timerInterval = setInterval(()=>{
+  if(detik>0){
+    detik--;
+    timerEl.textContent = '00:' + String(detik).padStart(2, '0');
+  } else {
+    // Auto load soal berikutnya jika waktu habis
+    clearInterval(timerInterval);
+    loadQuestion(currentQuestionIndex + 1);
+    currentQuestionIndex++;
+  }
+},1000);
+
+// Load soal pertama saat halaman dibuka
+if (daftarSoal.length > 0) {
+  loadQuestion(currentQuestionIndex);
+} else {
+  alert('Tidak ada soal. Silakan buat soal di halaman "Buat Quiz" terlebih dahulu.');
+}
+
+</script>
+
+</body>
+
+</html>

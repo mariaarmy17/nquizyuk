@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>NQUIZYUK</title>
+
+  <link rel="stylesheet" href="public/style.css">
+</head>
+
+<body>
+
+  <!-- NAVBAR -->
+  <header class="navbar">
+
+    <div class="logo">
+      NQUIZYUK
+    </div>
+
+    <nav>
+
+      <a href="index.html">Beranda</a>
+      <a href="src/pages/pilih-quiz.html">Quiz</a>
+      <a href="src/pages/ai-assistance.html">
+        AI Assistance
+      </a>
+
+      <button class="login-btn" id="loginBtn" type="button">
+        Login
+      </button>
+
+    </nav>
+
+  </header>
+
+
+  <!-- HERO -->
+  <section class="hero">
+
+    <!-- TEXT -->
+    <div class="hero-left">
+
+      <p>
+        NQUIZYUK hadir buat bikin quiz jadi lebih seru,
+        interaktif, dan anti ngantuk.
+        Guru bisa bikin soal dengan mudah,
+        murid bisa belajar sambil adu skor bareng teman.
+        Ada AI Assistance juga yang siap bantu kapan aja.
+      </p>
+
+      <div class="button-group">
+
+        <a href="src/pages/pilih-quiz.html">
+          <button class="guru">
+            Guru
+          </button>
+        </a>
+
+        <a href="src/pages/waiting-siswa.html">
+          <button class="siswa">
+            Siswa
+          </button>
+        </a>
+
+      </div>
+
+    </div>
+
+
+    <!-- IMAGE -->
+    <div class="hero-right">
+
+      <img src="assets/GAMBAR BERANDA NLP.png" alt="Beranda">
+
+    </div>
+
+  </section>
+
+  <!-- Login Modal -->
+  <div id="loginModal" class="modal" aria-hidden="true">
+    <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
+      <button class="modal-close" id="modalClose" aria-label="Tutup">×</button>
+      <h2 id="loginTitle">Login</h2>
+      <form id="loginForm">
+        <input type="text" id="username" placeholder="Username" required>
+        <input type="password" id="password" placeholder="Password" required>
+        <button type="submit" class="login-btn">Masuk</button>
+      </form>
+      <p class="modal-footer">Belum punya akun? <a href="#" id="signupLink">Sign in</a></p>
+    </div>
+  </div>
+
+  <script src="public/script.js"></script>
+
+</body>
+</html>

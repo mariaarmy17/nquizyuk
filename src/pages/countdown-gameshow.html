@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<meta charset="UTF-8">
+
+<title>Countdown Quiz</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
+body{
+background-color:#243A63;
+color:white;
+}
+
+/* NAVBAR */
+
+.navbar{
+
+height:80px;
+
+background:#243A63;
+
+display:flex;
+
+justify-content:space-between;
+
+align-items:center;
+
+padding:0 40px;
+
+}
+
+.left{
+
+display:flex;
+
+gap:40px;
+
+align-items:center;
+
+}
+
+.logo{
+
+color:#F5A623;
+
+font-size:28px;
+
+font-weight:bold;
+
+}
+
+.small{
+
+font-size:14px;
+
+}
+
+.orange{
+color:#F5A623;
+}
+
+.avatar{
+
+width:50px;
+
+height:50px;
+
+background:#F5A623;
+
+border-radius:50%;
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+color:#1B2C4D;
+
+font-weight:bold;
+
+}
+
+.right-group{
+  display:flex;
+  align-items:center;
+  gap:16px;
+}
+
+.exit-icon{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:8px 14px;
+  border-radius:999px;
+  background:#f4a621;
+  color:#24395f;
+  text-decoration:none;
+  font-weight:bold;
+  border:none;
+  cursor:pointer;
+}
+
+/* MAIN */
+
+.container{
+
+padding:20px;
+
+}
+
+.quiz-box{
+
+background-image: url("../../assets/CONFETTI.png"), linear-gradient(180deg, #4B0082, #2E005F);
+background-size: cover, cover;
+background-position: center, center;
+background-repeat: no-repeat, no-repeat;
+
+border-radius:18px;
+
+min-height:650px;
+
+padding:40px;
+
+position:relative;
+
+overflow:hidden;
+
+}
+
+/* CONFETTI */
+
+.quiz-box::before{
+
+content:"";
+
+position:absolute;
+
+inset:0;
+
+background:
+radial-gradient(circle,#f5a623 2px,transparent 3px);
+
+background-size:100px 100px;
+
+opacity:.25;
+
+}
+
+/* TITLE */
+
+.title{
+
+position:relative;
+
+z-index:2;
+
+text-align:center;
+
+margin-top:40px;
+
+}
+
+.title h1{
+
+font-size:90px;
+
+color:#FFC83D;
+
+text-shadow:
+0 0 20px orange;
+
+}
+
+.subtitle{
+
+font-size:40px;
+
+}
+
+/* BONUS */
+
+.bonus{
+
+position:relative;
+
+z-index:2;
+
+display:flex;
+
+justify-content:center;
+
+gap:100px;
+
+margin-top:70px;
+
+}
+
+.item{
+
+text-align:center;
+
+}
+
+.icon{
+
+font-size:60px;
+
+}
+
+.label{
+
+color:#F5A623;
+
+font-weight:bold;
+
+}
+
+.point{
+
+color:#00FF88;
+
+font-size:34px;
+
+margin-top:10px;
+
+}
+
+/* TIMER */
+
+.timer{
+
+position:relative;
+
+z-index:2;
+
+margin-top:80px;
+
+text-align:center;
+
+}
+
+.timer-box{
+
+display:inline-block;
+
+background:#3A006D;
+
+padding:20px 80px;
+
+border-radius:12px;
+
+font-size:60px;
+
+font-weight:bold;
+
+color:#FFC83D;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+
+<div class="navbar">
+
+<div class="left">
+
+<div class="logo">
+NQUIZYUK
+</div>
+
+<div>
+
+<div class="small">
+Room Code
+</div>
+
+<div class="orange">
+AN050624
+</div>
+
+</div>
+
+<div>
+
+<div class="small">
+Topik
+</div>
+
+<div class="orange">
+Bahasa Indonesia
+</div>
+
+</div>
+
+</div>
+
+<div class="right-group">
+  <div class="avatar">
+    NR
+  </div>
+</div>
+
+</div>
+
+
+<!-- CONTENT -->
+
+<div class="container">
+
+<div class="quiz-box">
+
+<div class="title">
+
+<h1>QUIZ</h1>
+
+<div class="subtitle">
+GAME SHOW
+</div>
+
+</div>
+
+<div class="bonus">
+
+<div class="item">
+
+<div class="icon">
+🏆
+</div>
+
+<div class="label">
+JAWAB BENAR
+</div>
+
+<div class="point">
++100
+</div>
+
+</div>
+
+<div class="item">
+
+<div class="icon">
+⏱
+</div>
+
+<div class="label">
+JAWAB CEPAT
+</div>
+
+<div class="point">
++BONUS
+</div>
+
+</div>
+
+<div class="item">
+
+<div class="icon">
+✅
+</div>
+
+<div class="label">
+COMBO BENAR
+</div>
+
+<div class="point">
++STREAK
+</div>
+
+</div>
+
+</div>
+
+
+<div class="timer">
+
+<div class="timer-box" id="countdown">
+
+00:12
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+
+<script>
+
+let time = 12;
+
+const countdown =
+document.getElementById("countdown");
+
+const intervalId = setInterval(()=>{
+
+if(time>0){
+
+time--;
+
+let sec =
+String(time)
+.padStart(2,"0");
+
+countdown.innerHTML=
+`00:${sec}`;
+
+if(time === 0){
+	clearInterval(intervalId);
+	setTimeout(()=>{
+		window.location.href = 'quiz-gameshow.html';
+	}, 500);
+}
+
+}
+
+},1000);
+
+</script>
+
+</body>
+
+</html>
