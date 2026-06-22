@@ -203,6 +203,34 @@ body{
     opacity:.9;
 }
 
+.exit-icon{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:8px 14px;
+  border-radius:999px;
+  background:#f4a621;
+  color:#24395f;
+  text-decoration:none;
+  font-weight:bold;
+  border:none;
+  cursor:pointer;
+}
+
+.top-right-exit{
+  position:fixed;
+  top:20px;
+  right:20px;
+  z-index:999;
+}
+
+.top-left-home{
+  position:fixed;
+  top:20px;
+  left:20px;
+  z-index:999;
+}
+
 @media(max-width:900px){
 
 .container{
@@ -227,6 +255,8 @@ body{
 </head>
 
 <body>
+  <a href="/index.html" class="exit-icon top-left-home" title="Beranda">🏠</a>
+  <a href="/index.html" class="exit-icon top-right-exit" title="Keluar">🚪</a>
 
 <!-- NAVBAR -->
 
