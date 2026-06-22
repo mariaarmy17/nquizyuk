@@ -50,7 +50,11 @@ body{
   </a>
 
 <section class="start-card" style="text-align:center; color:white;">
-<h1 id="countDisplay" style="font-size:120px;">
+  <div style="margin-bottom:24px; text-align:left;">
+    <div style="font-size:18px; margin-bottom:8px;">Room Code: <strong id="roomCodeValue">----</strong></div>
+    <div style="font-size:18px;">Mode: <strong id="modeValue">Tebak Gambar</strong></div>
+  </div>
+  <h1 id="countDisplay" style="font-size:120px;">
 3
 </h1>
 
@@ -59,6 +63,12 @@ body{
 </section>
 
 <script>
+const roomCode = sessionStorage.getItem('currentRoomCode') || '----';
+const roomCodeValue = document.getElementById('roomCodeValue');
+const modeValue = document.getElementById('modeValue');
+if (roomCodeValue) roomCodeValue.textContent = roomCode;
+if (modeValue) modeValue.textContent = 'Tebak Gambar';
+
 let time = 3; // seconds
 const display = document.getElementById('countDisplay');
 const label = document.getElementById('startLabel');

@@ -290,7 +290,7 @@ NQUIZYUK
 Room Code
 </div>
 
-<div class="orange">
+<div class="orange" id="roomCodeValue">
 AN050624
 </div>
 
@@ -302,7 +302,7 @@ AN050624
 Topik
 </div>
 
-<div class="orange">
+<div class="orange" id="topicValue">
 Bahasa Indonesia
 </div>
 
@@ -404,6 +404,20 @@ COMBO BENAR
 
 
 <script>
+
+const roomCode = sessionStorage.getItem('currentRoomCode') || '----';
+const selectedQuiz = sessionStorage.getItem('selectedQuiz') || localStorage.getItem('selectedQuiz') || 'gameshow';
+const topicNames = {
+  gameshow: 'Game Show',
+  tebak: 'Tebak Gambar',
+  wheel: 'Wheel Spin',
+  escape: 'Escape'
+};
+
+const roomCodeValue = document.getElementById('roomCodeValue');
+const topicValue = document.getElementById('topicValue');
+if (roomCodeValue) roomCodeValue.textContent = roomCode;
+if (topicValue) topicValue.textContent = topicNames[selectedQuiz] || 'Bahasa Indonesia';
 
 let time = 12;
 
