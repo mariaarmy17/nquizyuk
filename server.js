@@ -156,24 +156,27 @@ app.post('/api/nlp', (req, res) => {
 
 // POST - Buat room code baru
 app.post('/api/room-codes', (req, res) => {
-  const { room_code } = req.body;
+  let { room_code } = req.body;
   if (!room_code) {
     return res.status(400).json({ error: 'Room code diperlukan' });
   }
-  db.run('INSERT INTO room_codes (room_code, quiz_id, created_by) VALUES (?, 1, 1)', [room_code], function(err) {
+  room_code = room_code.toString().trim().toUpperCase();
+  if (!room_code) {
+    return res.status(400).json({ error: 'Room code diperlukan' });
+  }
+
+  db.run('INSERT OR IGNORE INTO room_codes (room_code, quiz_id, created_by) VALUES (?, 1, 1)', [room_code], function(err) {
     if (err) {
-      if (err.message && err.message.includes('UNIQUE')) {
-        return res.status(200).json({ room_code, message: 'Room code sudah ada' });
-      }
       return res.status(500).json({ error: err.message });
     }
-    res.json({ room_code, message: 'Room code dibuat' });
+    res.json({ room_code, message: 'Room code dibuat atau sudah ada' });
   });
 });
 
 // GET - Periksa room code
 app.get('/api/room-codes/:room_code', (req, res) => {
-  db.get('SELECT * FROM room_codes WHERE room_code = ?', [req.params.room_code], (err, row) => {
+  const room_code = req.params.room_code.toString().trim().toUpperCase();
+  db.get('SELECT * FROM room_codes WHERE room_code = ?', [room_code], (err, row) => {
     if (err) {
       return res.status(500).json({ error: err.message });
     }

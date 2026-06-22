@@ -455,11 +455,14 @@ async function createRoomCode(roomCode){
 
 // Simpan room code ke localStorage saat halaman dibuka dan muat peserta
 document.addEventListener('DOMContentLoaded', async function(){
-  const roomCode = document.getElementById("roomCode").innerText.trim();
+  const roomCodeElement = document.getElementById("roomCode");
+  const roomCode = roomCodeElement ? roomCodeElement.innerText.trim().toUpperCase() : '';
   if(roomCode){
     localStorage.setItem('activeRoomCode', roomCode);
-    await createRoomCode(roomCode);
-    refreshRoomParticipants();
+    const data = await createRoomCode(roomCode);
+    if (!data || data.error) {
+      console.error('Room code gagal dibuat atau disimpan:', data);
+    }
     setInterval(refreshRoomParticipants, 2000);
   }
 });
