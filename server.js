@@ -14,8 +14,10 @@ app.use(cors());
 app.use(express.json());
 
 // Serve static frontend files
+app.use(express.static(path.join(__dirname, 'public')));
 app.use('/public', express.static(path.join(__dirname, 'public')));
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
+app.use('/src', express.static(path.join(__dirname, 'src')));
 app.use(express.static(path.join(__dirname, 'src')));
 
 // ===== API ENDPOINTS (Backend Routes) =====
