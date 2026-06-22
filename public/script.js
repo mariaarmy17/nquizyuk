@@ -118,7 +118,53 @@ document.addEventListener('DOMContentLoaded', function(){
 		openModal();
 	}
 
+	function initNlpAssistant(){
+		const questionInput = document.getElementById('nlpQuestion');
+		const sendButton = document.getElementById('nlpSend');
+		const resultBox = document.getElementById('nlpResult');
+
+		if(!questionInput || !sendButton || !resultBox) return;
+
+		async function sendNlpQuestion(){
+			const question = questionInput.value.trim();
+			if(!question){
+				resultBox.textContent = 'Silakan ketik pertanyaan terlebih dahulu.';
+				return;
+			}
+
+			resultBox.textContent = 'Memproses...';
+
+			try {
+				const response = await fetch('/api/nlp', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ question })
+				});
+
+				const data = await response.json();
+				if(!response.ok){
+					resultBox.textContent = data.error || 'Terjadi kesalahan saat memproses pertanyaan.';
+					return;
+				}
+
+				resultBox.innerHTML = `<strong>Jawaban:</strong> ${data.answer}`;
+			} catch (error) {
+				console.error(error);
+				resultBox.textContent = 'Gagal menghubungi server. Coba lagi.';
+			}
+		}
+
+		sendButton.addEventListener('click', sendNlpQuestion);
+		questionInput.addEventListener('keydown', function(event){
+			if(event.key === 'Enter'){
+				event.preventDefault();
+				sendNlpQuestion();
+			}
+		});
+	}
+
 	// initialize handlers for the initial login template
 	initLoginHandlers();
+	initNlpAssistant();
 
 });

@@ -5,6 +5,7 @@ require('dotenv').config();
 
 // Import database
 const db = require('./backend/database');
+const nlp = require('compromise');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -81,6 +82,106 @@ app.post('/api/answers', (req, res) => {
       }
       res.json({ message: 'Jawaban tersimpan' });
     });
+});
+
+function createNlpAnswer(text) {
+  const input = text.trim();
+  const lower = input.toLowerCase();
+  const doc = nlp(input);
+  const sentences = doc.sentences().out('array');
+  const nouns = doc.nouns().out('array');
+  const verbs = doc.verbs().out('array');
+
+  if (!input) {
+    return { intent: 'empty', answer: 'Silakan ketik pertanyaan atau topik yang ingin Anda diskusikan.' };
+  }
+
+  if (lower.includes('ringkas') || lower.includes('ringkaskan') || lower.includes('summary')) {
+    const summary = sentences.slice(0, 2).join(' ');
+    return {
+      intent: 'ringkasan',
+      answer: summary || 'Maaf, saya tidak dapat membuat ringkasan dari teks tersebut.',
+      details: { sentences, nouns, verbs }
+    };
+  }
+
+  if (lower.includes('apa itu') || lower.includes('definisi') || lower.includes('pengertian')) {
+    return {
+      intent: 'definisi',
+      answer: 'Literasi digital adalah kemampuan menggunakan teknologi dan informasi secara cerdas, aman, dan bertanggung jawab. NLP membantu memahami teks dan menjawab pertanyaan dalam bahasa alami.',
+      details: { sentences, nouns, verbs }
+    };
+  }
+
+  if (lower.includes('ai') && lower.includes('sekolah')) {
+    return {
+      intent: 'ai-sekolah',
+      answer: 'AI di sekolah dapat membantu guru menyusun materi, memberikan umpan balik cepat kepada siswa, dan mendukung literasi digital melalui pemahaman bahasa dan rekomendasi konten.',
+      details: { sentences, nouns, verbs }
+    };
+  }
+
+  if (lower.includes('literasi digital')) {
+    return {
+      intent: 'literasi-digital',
+      answer: 'Literasi digital mencakup kemampuan menilai informasi online, menggunakan teknologi dengan aman, dan membuat konten digital. NLP membantu proses ini melalui analisis bahasa dan penjelasan otomatis.',
+      details: { sentences, nouns, verbs }
+    };
+  }
+
+  if (lower.includes('cara') || lower.includes('bagaimana') || lower.includes('tips')) {
+    return {
+      intent: 'cara',
+      answer: 'Coba tanyakan dengan jelas, misalnya "Bagaimana cara membuat ringkasan?" atau "Apa itu literasi digital?"',
+      details: { sentences, nouns, verbs }
+    };
+  }
+
+  return {
+    intent: 'general',
+    answer: 'Maaf, saya belum bisa menjawab secara spesifik. Coba ulang dengan kata-kata seperti "apa itu literasi digital" atau "ringkas teks berikut".',
+    details: { sentences, nouns, verbs }
+  };
+}
+
+// POST - NLP assistant
+app.post('/api/nlp', (req, res) => {
+  const { question } = req.body;
+  if (!question || !question.trim()) {
+    return res.status(400).json({ error: 'Pertanyaan diperlukan' });
+  }
+  const response = createNlpAnswer(question);
+  res.json(response);
+});
+
+// POST - Buat room code baru
+app.post('/api/room-codes', (req, res) => {
+  const { room_code } = req.body;
+  if (!room_code) {
+    return res.status(400).json({ error: 'Room code diperlukan' });
+  }
+  db.run('INSERT INTO room_codes (room_code, quiz_id, created_by) VALUES (?, 1, 1)', [room_code], function(err) {
+    if (err) {
+      if (err.message && err.message.includes('UNIQUE')) {
+        return res.status(200).json({ room_code, message: 'Room code sudah ada' });
+      }
+      return res.status(500).json({ error: err.message });
+    }
+    res.json({ room_code, message: 'Room code dibuat' });
+  });
+});
+
+// GET - Periksa room code
+app.get('/api/room-codes/:room_code', (req, res) => {
+  db.get('SELECT * FROM room_codes WHERE room_code = ?', [req.params.room_code], (err, row) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    if (!row) {
+      return res.status(404).json({ error: 'Room code tidak ditemukan' });
+    }
+    res.json(row);
+  });
 });
 
 // Serve index.html untuk route tidak dikenal (SPA support)

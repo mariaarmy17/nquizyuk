@@ -435,11 +435,30 @@ function refreshRoomParticipants(){
   updateJoinedCount(list.length);
 }
 
+async function createRoomCode(roomCode){
+  try{
+    const response = await fetch('/api/room-codes', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ room_code: roomCode })
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      console.error('Gagal membuat room code', data);
+    }
+    return data;
+  } catch(e){
+    console.error('Error membuat room code', e);
+    return null;
+  }
+}
+
 // Simpan room code ke localStorage saat halaman dibuka dan muat peserta
-document.addEventListener('DOMContentLoaded', function(){
+document.addEventListener('DOMContentLoaded', async function(){
   const roomCode = document.getElementById("roomCode").innerText.trim();
   if(roomCode){
     localStorage.setItem('activeRoomCode', roomCode);
+    await createRoomCode(roomCode);
     refreshRoomParticipants();
     setInterval(refreshRoomParticipants, 2000);
   }

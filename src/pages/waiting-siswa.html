@@ -64,11 +64,17 @@
       localStorage.setItem(getKey(code), JSON.stringify(list));
     }
 
-    function getActiveRoom(){
-      return localStorage.getItem('activeRoomCode');
+    async function isRoomCodeValid(code){
+      try {
+        const response = await fetch(`/api/room-codes/${encodeURIComponent(code)}`);
+        return response.ok;
+      } catch(e){
+        console.error('Validasi room code gagal', e);
+        return false;
+      }
     }
 
-    joinBtn.addEventListener('click', function(){
+    joinBtn.addEventListener('click', async function(){
       const name = nameInput.value.trim();
       const code = roomInput.value.trim().toUpperCase();
       if(!name){
@@ -79,13 +85,12 @@
         alert('Masukkan room code');
         return;
       }
-      const activeRoom = getActiveRoom();
-      if(!activeRoom || activeRoom !== code){
+      const valid = await isRoomCodeValid(code);
+      if(!valid){
         alert('Room code tidak ditemukan. Pastikan kode dari guru benar.');
         return;
       }
       const list = loadList(code);
-      // store object with timestamp for richer info
       const entry = {name: name, joinedAt: new Date().toISOString()};
       list.push(entry);
       saveList(code, list);

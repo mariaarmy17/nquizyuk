@@ -83,6 +83,34 @@ async function saveAnswer(studentId, questionId, answer) {
   }
 }
 
+// ===== ROOM CODE ENDPOINTS =====
+async function createRoomCode(roomCode) {
+  try {
+    const response = await fetch(`${API_URL}/room-codes`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ room_code: roomCode })
+    });
+    if (!response.ok) throw new Error('Gagal membuat room code');
+    return await response.json();
+  } catch (error) {
+    console.error('Error:', error);
+    return null;
+  }
+}
+
+async function checkRoomCode(roomCode) {
+  try {
+    const response = await fetch(`${API_URL}/room-codes/${roomCode}`);
+    if (!response.ok) return false;
+    const result = await response.json();
+    return result && result.room_code === roomCode;
+  } catch (error) {
+    console.error('Error:', error);
+    return false;
+  }
+}
+
 // Export untuk digunakan di file lain
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
@@ -90,6 +118,8 @@ if (typeof module !== 'undefined' && module.exports) {
     getQuizById,
     createQuiz,
     getQuestions,
-    saveAnswer
+    saveAnswer,
+    createRoomCode,
+    checkRoomCode
   };
 }

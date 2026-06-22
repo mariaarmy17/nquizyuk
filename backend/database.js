@@ -72,6 +72,13 @@ function initializeDatabase() {
       closed_at DATETIME,
       FOREIGN KEY (quiz_id) REFERENCES quiz(id),
       FOREIGN KEY (created_by) REFERENCES users(id)
+    )`,
+    `CREATE TABLE IF NOT EXISTS room_participants (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      room_code_id INTEGER NOT NULL,
+      participant_name TEXT NOT NULL,
+      joined_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (room_code_id) REFERENCES room_codes(id) ON DELETE CASCADE
     )`
   ];
   
