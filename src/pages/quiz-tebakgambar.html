@@ -554,20 +554,38 @@ let questionDuration = Number(localStorage.getItem('durasi')) || 12; // seconds
 let timerId = null;
 let timeLeft = questionDuration;
 
-// leaderboard state
-let leaderboard = {};
-
-// identify current user
 const userInfo = JSON.parse(sessionStorage.getItem('userInfo') || '{}');
 const myName = userInfo.username || 'You';
-if(!leaderboard[myName]) leaderboard[myName] = 0;
+const leaderboardKey = 'leaderboard_quiz_tebakgambar';
+let leaderboard = {};
+
+function loadLeaderboard() {
+  try {
+    const raw = localStorage.getItem(leaderboardKey);
+    const data = raw ? JSON.parse(raw) : null;
+    return data && typeof data === 'object' ? data : {};
+  } catch (e) {
+    return {};
+  }
+}
+
+function saveLeaderboard() {
+  try {
+    localStorage.setItem(leaderboardKey, JSON.stringify(leaderboard));
+  } catch (e) {
+    console.error('Gagal menyimpan leaderboard', e);
+  }
+}
 
 function renderLeaderboard(){
   const entries = Object.entries(leaderboard).sort((a,b)=>b[1]-a[1]);
-  leaderList.innerHTML = entries.map(([name,score],i)=>{
-    if(i < 3) return ''; // top 3 already shown
-    return `<div class="player"><span>${i+1}. ${name}</span><span>${score}</span></div>`;
-  }).join('');
+  leaderList.innerHTML = entries.length
+    ? entries.map(([name,score],i)=>{
+        const rank = i + 1;
+        const highlight = name === myName ? ' style="font-weight:700; color:#fde68a;"' : '';
+        return `<div class="player"${highlight}><span>${rank}. ${name}</span><span>${score}</span></div>`;
+      }).join('')
+    : '<div class="player"><span>Belum ada skor ditampilkan</span></div>';
 }
 
 function renderQuestion(){
@@ -609,6 +627,7 @@ function selectAnswer(idx, btn){
     leaderboard[myName] = (leaderboard[myName]||0) + 10;
     myScoreEl.textContent = leaderboard[myName];
     btn.style.background = '#10B981';
+    saveLeaderboard();
   } else {
     btn.style.background = '#FF6B6B';
     // highlight correct

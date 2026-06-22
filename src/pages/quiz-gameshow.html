@@ -615,6 +615,41 @@ let currentPosition = 1;
 let totalPositions = daftarSoal.length || 20;
 let currentScore = Number(localStorage.getItem('userScore') || 50);
 
+const userInfo = JSON.parse(sessionStorage.getItem('userInfo') || '{}');
+const currentUser = userInfo.username ? userInfo.username : 'Player';
+const leaderboardKey = 'leaderboard_quiz_gameshow';
+let leaderboard = {};
+
+function loadLeaderboard() {
+  try {
+    const raw = localStorage.getItem(leaderboardKey);
+    const data = raw ? JSON.parse(raw) : null;
+    return data && typeof data === 'object' ? data : {};
+  } catch (e) {
+    return {};
+  }
+}
+
+function saveLeaderboard() {
+  try {
+    localStorage.setItem(leaderboardKey, JSON.stringify(leaderboard));
+  } catch (e) {
+    console.error('Gagal menyimpan leaderboard', e);
+  }
+}
+
+function renderLeaderboard() {
+  const entries = Object.entries(leaderboard).sort((a, b) => b[1] - a[1]);
+  const html = entries.length
+    ? entries.map(([name, score], index) => {
+        const rank = index + 1;
+        const highlight = name === currentUser ? ' style="font-weight:700; color:#fde68a;"' : '';
+        return `<div class="player"${highlight}><span>${rank}. ${name}</span><span>${score}</span></div>`;
+      }).join('')
+    : '<div class="player"><span>Belum ada skor ditampilkan</span></div>';
+  document.getElementById('leaderList').innerHTML = html;
+}
+
 function updatePosition(position, total = 20) {
   currentPosition = position;
   totalPositions = total;
@@ -624,6 +659,9 @@ function updatePosition(position, total = 20) {
 function updateScore(score) {
   currentScore = score;
   scoreValueEl.textContent = score;
+  leaderboard[currentUser] = score;
+  saveLeaderboard();
+  renderLeaderboard();
 }
 
 function setProgress(position, total, score) {
@@ -692,9 +730,15 @@ function resetTimer() {
   timerEl.textContent = '00:' + String(detik).padStart(2, '0');
 }
 
+leaderboard = loadLeaderboard();
+if (!leaderboard[currentUser]) {
+  leaderboard[currentUser] = currentScore;
+}
+
 // initialize card 1 and card 3 values
 updatePosition(currentPosition, totalPositions);
 updateScore(currentScore);
+renderLeaderboard();
 
 const timerEl = document.getElementById('timer');
 

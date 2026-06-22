@@ -28,7 +28,12 @@
         <div class="wheel-wrapper"><div class="wheel-pointer"></div><canvas id="wheelCanvas"></canvas></div>
         <button class="spin-button" id="spinBtn">🎡 PUTAR RODA</button>
         <div class="result-box" id="resultBox">Klik tombol untuk memulai</div>
+        <div class="result-box" id="scoreBox">Skor: <span id="scoreValue">0</span></div>
         <div class="spin-count">Total Spin: <span id="spinCount">0</span></div>
+      </div>
+      <div class="board" id="leaderboardPanel" style="margin-top:24px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.12); border-radius:16px; padding:18px; color:#fff; max-width:360px; width:100%;">
+        <div class="board-title" style="font-size:18px; margin-bottom:12px;">🏆 LEADERBOARD</div>
+        <div id="leaderList"><div class="player"><span>Belum ada skor ditampilkan</span></div></div>
       </div>
     </div>
   </section>
@@ -52,8 +57,15 @@
           { text:'Seni', color:'#F7DC6F' }
         ];
 
+        this.scoreValue = 0;
+        this.leaderboardKey = 'leaderboard_wheel_spin';
+        this.leaderboard = this.loadLeaderboard();
+        this.currentUser = (JSON.parse(sessionStorage.getItem('userInfo') || '{}').username) || 'Player';
+
         this.isSpinning=false; this.spinCount=0; this.rotation=0;
         this.setupCanvas(); this.drawWheel(); this.initEventListeners(); this.checkSession();
+        this.updateScoreDisplay();
+        this.renderLeaderboard();
       }
 
       checkSession(){
@@ -68,6 +80,52 @@
       spin(){ if(this.isSpinning) return; this.isSpinning=true; this.spinBtn.disabled=true; this.spinCount++; this.spinCountEl.textContent=this.spinCount; const extra=Math.random()*(2*Math.PI); const total=(5+Math.random()*5)*(2*Math.PI)+extra; const duration=3000; const start=performance.now(); const startRot=this.rotation; const animate=(now)=>{ const t=Math.min(1,(now-start)/duration); const eased=1-Math.pow(1-t,3); this.rotation=startRot+total*eased; this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height); this.drawWheel(); if(t<1) requestAnimationFrame(animate); else { this.isSpinning=false; this.spinBtn.disabled=false; this.showResult() } }; requestAnimationFrame(animate) }
 
       showResult(){ const sliceAngle=(2*Math.PI)/this.categories.length; const normalized=((2*Math.PI)-(this.rotation%(2*Math.PI)))%(2*Math.PI); const idx=Math.floor(normalized/sliceAngle)%this.categories.length; const sel=this.categories[idx]; this.resultBox.innerHTML=`🎉 <strong>${sel.text}</strong><br><small>Pertanyaan tentang: ${sel.text}</small>`; this.resultBox.style.background=sel.color; this.resultBox.style.color='#fff' }
+
+      loadLeaderboard(){
+        try{
+          const raw = localStorage.getItem(this.leaderboardKey);
+          const data = raw ? JSON.parse(raw) : null;
+          return data && typeof data === 'object' ? data : {};
+        } catch(e){
+          return {};
+        }
+      }
+
+      saveLeaderboard(){
+        try{
+          localStorage.setItem(this.leaderboardKey, JSON.stringify(this.leaderboard));
+        } catch(e){
+          console.error('Gagal menyimpan leaderboard', e);
+        }
+      }
+
+      renderLeaderboard(){
+        const entries = Object.entries(this.leaderboard).sort((a,b)=>b[1]-a[1]);
+        const html = entries.length
+          ? entries.map(([name,score], index)=>{
+              const rank = index + 1;
+              const highlight = name === this.currentUser ? 'font-weight:700; color:#fde68a;' : '';
+              return `<div class="player" style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.08); ${highlight}"><span>${rank}. ${name}</span><span>${score}</span></div>`;
+            }).join('')
+          : '<div class="player">Belum ada skor ditampilkan</div>';
+        this.leaderList.innerHTML = html;
+      }
+
+      updateScoreDisplay(){
+        document.getElementById('scoreValue').textContent = this.scoreValue;
+      }
+
+      addScore(points){
+        this.scoreValue += points;
+        this.leaderboard[this.currentUser] = Math.max(this.leaderboard[this.currentUser] || 0, this.scoreValue);
+        this.saveLeaderboard();
+        this.updateScoreDisplay();
+        this.renderLeaderboard();
+      }
+
+      spin(){ if(this.isSpinning) return; this.isSpinning=true; this.spinBtn.disabled=true; this.spinCount++; this.spinCountEl.textContent=this.spinCount; const extra=Math.random()*(2*Math.PI); const total=(5+Math.random()*5)*(2*Math.PI)+extra; const duration=3000; const start=performance.now(); const startRot=this.rotation; const animate=(now)=>{ const t=Math.min(1,(now-start)/duration); const eased=1-Math.pow(1-t,3); this.rotation=startRot+total*eased; this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height); this.drawWheel(); if(t<1) requestAnimationFrame(animate); else { this.isSpinning=false; this.spinBtn.disabled=false; this.showResult() } }; requestAnimationFrame(animate) }
+
+      showResult(){ const sliceAngle=(2*Math.PI)/this.categories.length; const normalized=((2*Math.PI)-(this.rotation%(2*Math.PI)))%(2*Math.PI); const idx=Math.floor(normalized/sliceAngle)%this.categories.length; const sel=this.categories[idx]; this.resultBox.innerHTML=`🎉 <strong>${sel.text}</strong><br><small>Pertanyaan tentang: ${sel.text}</small>`; this.resultBox.style.background=sel.color; this.resultBox.style.color='#fff'; this.addScore(10); }
 
       initEventListeners(){ this.spinBtn.addEventListener('click',()=>this.spin()); const logout=document.getElementById('logoutBtn'); if(logout) logout.addEventListener('click',()=>{ sessionStorage.clear(); window.location.href='../../index.html' }); window.addEventListener('resize',()=>{ this.setupCanvas(); this.drawWheel() }) }
     }
