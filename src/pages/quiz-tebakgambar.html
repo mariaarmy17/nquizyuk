@@ -550,20 +550,15 @@ NR
 
 
 <script>
-// Basic interactive flow for Tebak Gambar
+// Load soal dari localStorage dengan mode-specific key
+let daftarSoal = JSON.parse(localStorage.getItem("daftarSoal_tebakgambar")) || [];
+
 const questionTimerEl = document.getElementById('questionTimer');
 const myScoreEl = document.getElementById('myScore');
 const optionsEl = document.getElementById('options');
 const questionImage = document.getElementById('questionImage');
 const leaderList = document.getElementById('leaderList');
 const posisiDisplay = document.getElementById('posisiDisplay');
-
-// sample questions (image paths should be replaced with real ones)
-const questions = [
-  { image: '../../assets/LOGO TEBAK GAMBAR.png', choices: ['Anjing','Kucing','Burung','Ikan'], correct: 1 },
-  { image: '../../assets/LOGO TEBAK GAMBAR.png', choices: ['Mobil','Motor','Sepeda','Pesawat'], correct: 2 },
-  { image: '../../assets/LOGO TEBAK GAMBAR.png', choices: ['Laptop','Tablet','HP','TV'], correct: 0 }
-];
 
 let current = 0;
 let questionDuration = Number(localStorage.getItem('durasi')) || 12; // seconds
@@ -626,17 +621,24 @@ function renderLeaderboard(){
 }
 
 function renderQuestion(){
-  const q = questions[current];
-  questionImage.src = q.image;
-  posisiDisplay.textContent = (current + 1) + '/' + questions.length;
+  if(daftarSoal.length === 0) {
+    optionsEl.innerHTML = '<div class="player"><span>Tidak ada soal tersedia</span></div>';
+    return;
+  }
+  
+  const q = daftarSoal[current];
+  // Assume soal format: { soal, jawaban, benar, poin }
+  posisiDisplay.textContent = (current + 1) + '/' + daftarSoal.length;
   optionsEl.innerHTML = '';
-  q.choices.forEach((c,idx)=>{
+  
+  (q.jawaban || []).forEach((c, idx) => {
     const btn = document.createElement('button');
     btn.className = 'option';
-    btn.innerHTML = `<div class="circle">${String.fromCharCode(65+idx)}</div> ${c}`;
-    btn.onclick = ()=>selectAnswer(idx, btn);
+    btn.innerHTML = `<div class="circle">${String.fromCharCode(65 + idx)}</div> ${c}`;
+    btn.onclick = () => selectAnswer(idx, btn, q);
     optionsEl.appendChild(btn);
   });
+  
   // reset timer
   resetTimer();
 }
@@ -655,12 +657,12 @@ function resetTimer(){
   },1000);
 }
 
-function selectAnswer(idx, btn){
+function selectAnswer(idx, btn, q){
   // disable buttons
   document.querySelectorAll('.option').forEach(b=>b.disabled=true);
-  const correct = questions[current].correct;
+  const correct = Number(q.benar);
   if(idx === correct){
-    currentScore += 10;
+    currentScore += Number(q.poin || 10);
     myScoreEl.textContent = currentScore;
     btn.style.background = '#10B981';
     saveScoreToServer(currentScore);
@@ -678,7 +680,8 @@ function selectAnswer(idx, btn){
 
 function autoNext(){
   // mark unanswered as incorrect, then next
-  const correct = questions[current].correct;
+  const q = daftarSoal[current];
+  const correct = Number(q.benar);
   document.querySelectorAll('.option').forEach((b, i)=>{
     b.disabled = true;
     if(i===correct) b.style.background = '#10B981';
@@ -688,9 +691,9 @@ function autoNext(){
 
 function nextQuestion(){
   current++;
-  if(current >= questions.length){
+  if(current >= daftarSoal.length){
     // end quiz - show summary or back to dashboard
-    alert('Kuis selesai. Skor Anda: ' + (leaderboard[myName]||0));
+    alert('Kuis selesai. Skor Anda: ' + currentScore);
     window.location.href='../../index.html';
     return;
   }
@@ -698,6 +701,11 @@ function nextQuestion(){
 }
 
 (async function initQuiz() {
+  if(daftarSoal.length === 0) {
+    alert('Tidak ada soal untuk quiz ini. Silakan buat soal terlebih dahulu.');
+    window.location.href = '../../index.html';
+    return;
+  }
   currentScore = 0;
   myScoreEl.textContent = currentScore;
   await fetchLeaderboard();

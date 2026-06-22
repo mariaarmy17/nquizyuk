@@ -618,8 +618,8 @@ NR
 
 <script>
 
-// Load soal dari localStorage
-let daftarSoal = JSON.parse(localStorage.getItem("daftarSoal")) || [];
+// Load soal dari localStorage dengan mode-specific key
+let daftarSoal = JSON.parse(localStorage.getItem("daftarSoal_gameshow")) || [];
 let currentQuestionIndex = 0;
 let userAnswers = [];
 

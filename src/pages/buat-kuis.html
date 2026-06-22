@@ -307,6 +307,14 @@ NQUIZYUK | BUAT QUIZ BARU
 
 <input type="text" placeholder="Mata Pelajaran">
 
+<select id="modeQuiz" style="width:100%; padding:15px; border:none; outline:none; border-radius:10px; background:#2D4777; color:white; font-size:14px;">
+  <option value="">-- Pilih Mode Quiz --</option>
+  <option value="gameshow">Game Show</option>
+  <option value="tebakgambar">Tebak Gambar</option>
+  <option value="escape">Escape Room</option>
+  <option value="wheel">Wheel Spin</option>
+</select>
+
 <input type="number" id="durasi" placeholder="Durasi (detik)" min="1">
 
 <input type="number" id="jumlahSoal" placeholder="Jumlah soal" min="1" value="1">
@@ -422,12 +430,38 @@ const nextBtn = document.querySelector(".next");
 const addBtn = document.querySelector(".add-btn");
 const jumlahSoalInput = document.getElementById("jumlahSoal");
 const soalCounter = document.getElementById("soalCounter");
+const modeQuizSelect = document.getElementById("modeQuiz");
 
-let daftarSoal = JSON.parse(localStorage.getItem("daftarSoal")) || [];
+let selectedMode = localStorage.getItem("selectedQuizMode") || modeQuizSelect.value;
+let daftarSoal = JSON.parse(localStorage.getItem(`daftarSoal_${selectedMode}`)) || [];
 let editIndex = -1;
 
+// Sync mode dari select
+modeQuizSelect.value = selectedMode;
+modeQuizSelect.addEventListener("change", function(){
+  const newMode = this.value;
+  if(!newMode){
+    alert("Silakan pilih mode quiz terlebih dahulu");
+    this.value = selectedMode;
+    return;
+  }
+  
+  // Simpan soal lama jika ada
+  if(daftarSoal.length > 0){
+    localStorage.setItem(`daftarSoal_${selectedMode}`, JSON.stringify(daftarSoal));
+  }
+  
+  // Switch ke mode baru
+  selectedMode = newMode;
+  localStorage.setItem("selectedQuizMode", selectedMode);
+  daftarSoal = JSON.parse(localStorage.getItem(`daftarSoal_${selectedMode}`)) || [];
+  editIndex = -1;
+  tampilkanSoal();
+  soalInput.focus();
+});
+
 function simpanLocal(){
-	localStorage.setItem("daftarSoal", JSON.stringify(daftarSoal));
+	localStorage.setItem(`daftarSoal_${selectedMode}`, JSON.stringify(daftarSoal));
 }
 
 function tampilkanSoal(){
@@ -554,10 +588,20 @@ jumlahSoalInput.addEventListener("input", updateSoalCounter);
 updateSoalCounter();
 
 nextBtn.addEventListener("click", function(){
+	if(!selectedMode){
+		alert("Pilih mode quiz terlebih dahulu");
+		return;
+	}
+	
 	if(daftarSoal.length === 0){
 		alert("Buat minimal 1 soal terlebih dahulu");
 		return;
 	}
+	
+	// Simpan mode dan soal sebelum pindah halaman
+	localStorage.setItem("selectedQuizMode", selectedMode);
+	localStorage.setItem(`daftarSoal_${selectedMode}`, JSON.stringify(daftarSoal));
+	localStorage.setItem("selectedQuiz", selectedMode);
 	
 	window.location.href = "waiting-guru.html";
 });
