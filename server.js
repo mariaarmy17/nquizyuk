@@ -15,7 +15,7 @@ app.use(express.json());
 
 // Serve static frontend files
 app.use('/public', express.static(path.join(__dirname, 'public')));
-app.use(express.static(path.join(__dirname, 'public')));
+app.use('/assets', express.static(path.join(__dirname, 'assets')));
 app.use(express.static(path.join(__dirname, 'src')));
 
 // ===== API ENDPOINTS (Backend Routes) =====
