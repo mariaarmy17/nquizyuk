@@ -4,7 +4,7 @@
 
 <title>Tebak Gambar</title>
 
-<link rel="stylesheet" href="/public/style.css">
+  <link rel="stylesheet" href="public/style.css">
 <style>
 body{
   background-color:#243A63;
@@ -48,6 +48,13 @@ body{
   z-index:999;
 }
 </style>
+/* Responsive for small screens */
+@media (max-width:768px){
+  .navbar{padding:0 16px;height:64px}
+  .menu{gap:12px;flex-wrap:wrap}
+  .container{padding:20px}
+  .canvas{max-width:100%}
+}
 
 </head>
 
