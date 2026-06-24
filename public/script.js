@@ -6,6 +6,22 @@ document.addEventListener('DOMContentLoaded', function(){
 	const modalContent = modal.querySelector('.modal-content');
 	let loginTemplate = modalContent.innerHTML;
 
+	function isLoggedIn(){
+		return !!sessionStorage.getItem('userInfo');
+	}
+
+	function getLoginTarget(){
+		const target = sessionStorage.getItem('loginTarget');
+		if(!target) return 'src/pages/room-code.html';
+		sessionStorage.removeItem('loginTarget');
+		return target;
+	}
+
+	function openLoginModalFor(target){
+		sessionStorage.setItem('loginTarget', target);
+		openModal();
+	}
+
 	function openModal(){
 		modal.classList.add('open');
 		modal.setAttribute('aria-hidden','false');
@@ -24,9 +40,20 @@ document.addEventListener('DOMContentLoaded', function(){
 
 	function initLoginHandlers(){
 		const loginBtn = document.getElementById('loginBtn');
+		const guruBtn = document.getElementById('guruBtn');
 		const modalClose = document.getElementById('modalClose');
 		const loginForm = document.getElementById('loginForm');
 		const signupLink = document.getElementById('signupLink');
+
+		if(guruBtn){
+			guruBtn.addEventListener('click', function(){
+				if(isLoggedIn()){
+					window.location.href = 'src/pages/pilih-quiz.html';
+					return;
+				}
+				openLoginModalFor('src/pages/pilih-quiz.html');
+			});
+		}
 
 		if(loginBtn){
 			loginBtn.addEventListener('click', function(){
@@ -54,9 +81,9 @@ document.addEventListener('DOMContentLoaded', function(){
 				}));
 				
 				closeModal();
-				// Redirect ke halaman input room code
+				const target = getLoginTarget();
 				setTimeout(function(){
-					window.location.href = 'src/pages/room-code.html';
+					window.location.href = target;
 				}, 500);
 			});
 		}

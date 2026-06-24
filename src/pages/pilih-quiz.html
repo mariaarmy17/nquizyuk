@@ -340,4 +340,13 @@ function chooseQuiz(type) {
     window.location.href = 'buat-kuis.html';
 }
 </script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const userInfo = sessionStorage.getItem('userInfo');
+    if (!userInfo) {
+      alert('Silakan login terlebih dahulu untuk masuk sebagai guru.');
+      window.location.href = '/index.html';
+    }
+  });
+</script>
 </html>

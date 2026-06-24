@@ -428,9 +428,6 @@ LANJUTKAN
 
 </div>
 
-</body>
-</html>
-
 <script>
 const soalInput = document.getElementById("soalInput");
 const soalList = document.getElementById("soalList");
@@ -444,6 +441,20 @@ const modeQuizSelect = document.getElementById("modeQuiz");
 let selectedMode = localStorage.getItem("selectedQuizMode") || modeQuizSelect.value;
 let daftarSoal = JSON.parse(localStorage.getItem(`daftarSoal_${selectedMode}`)) || [];
 let editIndex = -1;
+
+function ensureLogin(){
+  const userInfo = sessionStorage.getItem('userInfo');
+  if (!userInfo) {
+    alert('Silakan login terlebih dahulu untuk masuk sebagai guru.');
+    window.location.href = '/index.html';
+    return false;
+  }
+  return true;
+}
+
+if (!ensureLogin()) {
+  throw new Error('Not logged in');
+}
 
 // Sync mode dari select
 modeQuizSelect.value = selectedMode;
@@ -470,126 +481,126 @@ modeQuizSelect.addEventListener("change", function(){
 });
 
 function simpanLocal(){
-	localStorage.setItem(`daftarSoal_${selectedMode}`, JSON.stringify(daftarSoal));
+  localStorage.setItem(`daftarSoal_${selectedMode}`, JSON.stringify(daftarSoal));
 }
 
 function tampilkanSoal(){
-	soalList.innerHTML = "";
-	daftarSoal.forEach((item, index) => {
-		const div = document.createElement("div");
-		div.className = "question";
-		div.innerHTML = `
-			<div class="number">${index + 1}</div>
-			<div>
-				<div>${item.soal}</div>
-				<div style="margin-top:10px; display:flex; gap:10px;">
-					<button onclick="editSoal(${index})" style="background:#10B981; color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">Edit</button>
-					<button onclick="hapusSoal(${index})" style="background:#FF6B6B; color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">Hapus</button>
-				</div>
-			</div>
-		`;
-		soalList.appendChild(div);
-	});
+  soalList.innerHTML = "";
+  daftarSoal.forEach((item, index) => {
+    const div = document.createElement("div");
+    div.className = "question";
+    div.innerHTML = `
+      <div class="number">${index + 1}</div>
+      <div>
+        <div>${item.soal}</div>
+        <div style="margin-top:10px; display:flex; gap:10px;">
+          <button onclick="editSoal(${index})" style="background:#10B981; color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">Edit</button>
+          <button onclick="hapusSoal(${index})" style="background:#FF6B6B; color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">Hapus</button>
+        </div>
+      </div>
+    `;
+    soalList.appendChild(div);
+  });
 }
 
 window.editSoal = function(index){
-	const item = daftarSoal[index];
-	soalInput.value = item.soal;
-	
-	const inputs = document.querySelectorAll(".answer input");
-	inputs.forEach((input, i) => {
-		input.value = item.jawaban[i] || "";
-	});
-	
-	document.getElementById("jawabanBenar").value = item.benar;
-	document.getElementById("poin").value = item.poin;
-	
-	editIndex = index;
-	soalInput.focus();
+  const item = daftarSoal[index];
+  soalInput.value = item.soal;
+  
+  const inputs = document.querySelectorAll(".answer input");
+  inputs.forEach((input, i) => {
+    input.value = item.jawaban[i] || "";
+  });
+  
+  document.getElementById("jawabanBenar").value = item.benar;
+  document.getElementById("poin").value = item.poin;
+  
+  editIndex = index;
+  soalInput.focus();
 }
 
 window.hapusSoal = function(index){
-	if(confirm("Hapus soal ini?")){
-		daftarSoal.splice(index, 1);
-		simpanLocal();
-		tampilkanSoal();
-	}
+  if(confirm("Hapus soal ini?")){
+    daftarSoal.splice(index, 1);
+    simpanLocal();
+    tampilkanSoal();
+  }
 }
 
 saveBtn.addEventListener("click", function(){
-	const soal = soalInput.value.trim();
-	
-	if(!soal){
-		alert("Masukkan soal terlebih dahulu");
-		return;
-	}
-	
-	const jawaban = [];
-	document.querySelectorAll(".answer input").forEach(input => {
-		jawaban.push(input.value);
-	});
-	
-	const benar = document.getElementById("jawabanBenar").value;
-	const poin = document.getElementById("poin").value;
-	
-	if(!benar){
-		alert("Pilih jawaban benar");
-		return;
-	}
-	
-	const dataSoal = {
-		soal: soal,
-		jawaban: jawaban,
-		benar: benar,
-		poin: poin || "10"
-	};
-	
-	if(editIndex === -1){
-		daftarSoal.push(dataSoal);
-	} else {
-		daftarSoal[editIndex] = dataSoal;
-		editIndex = -1;
-	}
-	
-	simpanLocal();
-	tampilkanSoal();
-	
-	soalInput.value = "";
-	document.querySelectorAll(".answer input").forEach(input => {
-		input.value = "";
-	});
-	document.getElementById("jawabanBenar").value = "";
-	document.getElementById("poin").value = "10";
-	
-	alert("Soal berhasil disimpan");
-	soalInput.focus();
+  const soal = soalInput.value.trim();
+  
+  if(!soal){
+    alert("Masukkan soal terlebih dahulu");
+    return;
+  }
+  
+  const jawaban = [];
+  document.querySelectorAll(".answer input").forEach(input => {
+    jawaban.push(input.value);
+  });
+  
+  const benar = document.getElementById("jawabanBenar").value;
+  const poin = document.getElementById("poin").value;
+  
+  if(!benar){
+    alert("Pilih jawaban benar");
+    return;
+  }
+  
+  const dataSoal = {
+    soal: soal,
+    jawaban: jawaban,
+    benar: benar,
+    poin: poin || "10"
+  };
+  
+  if(editIndex === -1){
+    daftarSoal.push(dataSoal);
+  } else {
+    daftarSoal[editIndex] = dataSoal;
+    editIndex = -1;
+  }
+  
+  simpanLocal();
+  tampilkanSoal();
+  
+  soalInput.value = "";
+  document.querySelectorAll(".answer input").forEach(input => {
+    input.value = "";
+  });
+  document.getElementById("jawabanBenar").value = "";
+  document.getElementById("poin").value = "10";
+  
+  alert("Soal berhasil disimpan");
+  soalInput.focus();
 });
 
 addBtn.addEventListener("click", function(){
-	const jumlah = document.querySelectorAll(".answer").length;
-	const huruf = String.fromCharCode(65 + jumlah);
-	
-	const div = document.createElement("div");
-	div.className = "answer";
-	div.innerHTML = `
-		<span>${huruf}</span>
-		<input type="text" placeholder="Jawaban ${huruf}">
-		<button type="button" class="remove-answer" onclick="removeAnswer(this)" title="Hapus jawaban">×</button>
-	`;
-	
-	addBtn.before(div);
+  const jumlah = document.querySelectorAll(".answer").length;
+  const huruf = String.fromCharCode(65 + jumlah);
+  
+  const div = document.createElement("div");
+  div.className = "answer";
+  div.innerHTML = `
+    <span>${huruf}</span>
+    <input type="text" placeholder="Jawaban ${huruf}">
+    <button type="button" class="remove-answer" onclick="removeAnswer(this)" title="Hapus jawaban">×</button>
+  `;
+  
+  addBtn.before(div);
 });
 
 window.removeAnswer = function(button){
-	const answerRow = button.closest('.answer');
-	if(answerRow){
-		answerRow.remove();
-	}
+  const answerRow = button.closest('.answer');
+  if(answerRow){
+    answerRow.remove();
+  }
 };
 
 function updateSoalCounter(){
-	const total = Number(jumlahSoalInput.value) || 1;
-	soalCounter.textContent = `Soal 1 dari ${total} soal`;
+  const total = Number(jumlahSoalInput.value) || 1;
+  soalCounter.textContent = `Soal 1 dari ${total} soal`;
 }
 
 jumlahSoalInput.addEventListener("input", updateSoalCounter);
@@ -597,24 +608,26 @@ jumlahSoalInput.addEventListener("input", updateSoalCounter);
 updateSoalCounter();
 
 nextBtn.addEventListener("click", function(){
-	if(!selectedMode){
-		alert("Pilih mode quiz terlebih dahulu");
-		return;
-	}
-	
-	if(daftarSoal.length === 0){
-		alert("Buat minimal 1 soal terlebih dahulu");
-		return;
-	}
-	
-	// Simpan mode dan soal sebelum pindah halaman
-	localStorage.setItem("selectedQuizMode", selectedMode);
-	localStorage.setItem(`daftarSoal_${selectedMode}`, JSON.stringify(daftarSoal));
-	localStorage.setItem("selectedQuiz", selectedMode);
-	
-	window.location.href = "waiting-guru.html";
+  if(!selectedMode){
+    alert("Pilih mode quiz terlebih dahulu");
+    return;
+  }
+  
+  if(daftarSoal.length === 0){
+    alert("Buat minimal 1 soal terlebih dahulu");
+    return;
+  }
+  
+  // Simpan mode dan soal sebelum pindah halaman
+  localStorage.setItem("selectedQuizMode", selectedMode);
+  localStorage.setItem(`daftarSoal_${selectedMode}`, JSON.stringify(daftarSoal));
+  localStorage.setItem("selectedQuiz", selectedMode);
+  
+  window.location.href = "waiting-guru.html";
 });
 
 tampilkanSoal();
 soalInput.focus();
 </script>
+</body>
+</html>
