@@ -68,23 +68,49 @@ document.addEventListener('DOMContentLoaded', function(){
 		}
 
 		if(loginForm){
-			loginForm.addEventListener('submit', function(e){
+			loginForm.addEventListener('submit', async function(e){
 				e.preventDefault();
 				const username = document.getElementById('username').value;
 				const password = document.getElementById('password').value;
-				console.log('Login submit', {username, password});
 				
-				// Simpan user info ke session storage
-				sessionStorage.setItem('userInfo', JSON.stringify({
-					username: username,
-					loginTime: new Date().toISOString()
-				}));
-				
-				closeModal();
-				const target = getLoginTarget();
-				setTimeout(function(){
-					window.location.href = target;
-				}, 500);
+				try {
+					const response = await fetch('/api/login', {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({ username, password })
+					});
+					
+					const data = await response.json();
+					
+					if (!response.ok) {
+						alert('❌ Login Gagal\n' + data.error);
+						console.error('Login error:', data);
+						return;
+					}
+					
+					// Validasi bahwa user adalah guru
+					if (data.user && data.user.role === 'guru') {
+						// Simpan user info ke session storage
+						sessionStorage.setItem('userInfo', JSON.stringify({
+							id: data.user.id,
+							username: data.user.username,
+							email: data.user.email,
+							role: data.user.role,
+							loginTime: new Date().toISOString()
+						}));
+						
+						closeModal();
+						const target = getLoginTarget();
+						setTimeout(function(){
+							window.location.href = target;
+						}, 500);
+					} else {
+						alert('❌ Akses Ditolak\nAnda bukan guru, hanya guru yang dapat login');
+					}
+				} catch (error) {
+					console.error('Error:', error);
+					alert('❌ Terjadi kesalahan saat login. Coba lagi.');
+				}
 			});
 		}
 
@@ -104,18 +130,48 @@ document.addEventListener('DOMContentLoaded', function(){
 		if(modalClose) modalClose.addEventListener('click', function(){ closeModal(); });
 
 		if(signupForm){
-			signupForm.addEventListener('submit', function(e){
+			signupForm.addEventListener('submit', async function(e){
 				e.preventDefault();
 				const username = document.getElementById('signupUsername').value;
+				const email = document.getElementById('signupEmail')?.value || username + '@example.com';
 				const password = document.getElementById('signupPassword').value;
 				const confirm = document.getElementById('signupConfirm').value;
+				
 				if(password !== confirm){
-					alert('Password dan konfirmasi tidak cocok');
+					alert('❌ Password dan konfirmasi tidak cocok');
 					return;
 				}
-				console.log('Signup submit', {username, password});
-				closeModal();
-				alert('Akun dibuat\nUsername: ' + username);
+				
+				try {
+					const response = await fetch('/api/signup', {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({ 
+							username, 
+							email,
+							password, 
+							confirm_password: confirm 
+						})
+					});
+					
+					const data = await response.json();
+					
+					if (!response.ok) {
+						alert('❌ Daftar Gagal\n' + data.error);
+						return;
+					}
+					
+					closeModal();
+					alert('✅ Akun guru berhasil dibuat!\nUsername: ' + username + '\nSilakan login untuk melanjutkan');
+					setTimeout(function(){
+						openModal();
+						modalContent.innerHTML = loginTemplate;
+						initLoginHandlers();
+					}, 300);
+				} catch (error) {
+					console.error('Error:', error);
+					alert('❌ Terjadi kesalahan saat mendaftar. Coba lagi.');
+				}
 			});
 		}
 
@@ -131,10 +187,11 @@ document.addEventListener('DOMContentLoaded', function(){
 	function openSignup(){
 		const signupTemplate = `
 			<button class="modal-close" id="modalClose" aria-label="Tutup">×</button>
-			<h2 id="signupTitle">Daftar</h2>
+			<h2 id="signupTitle">Daftar Akun Guru</h2>
 			<form id="signupForm">
 				<input type="text" id="signupUsername" placeholder="Username" required>
-				<input type="password" id="signupPassword" placeholder="Password" required>
+				<input type="email" id="signupEmail" placeholder="Email" required>
+				<input type="password" id="signupPassword" placeholder="Password (min 6 karakter)" required>
 				<input type="password" id="signupConfirm" placeholder="Konfirmasi Password" required>
 				<button type="submit" class="login-btn">Daftar</button>
 			</form>

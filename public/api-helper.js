@@ -5,6 +5,46 @@ const API_URL = window.location.hostname === 'localhost'
   ? 'http://localhost:3000/api'
   : `${window.location.origin}/api`;
 
+// ===== AUTHENTICATION ENDPOINTS =====
+
+// Login guru (teacher login)
+async function loginGuru(username, password) {
+  try {
+    const response = await fetch(`${API_URL}/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password })
+    });
+    if (!response.ok) {
+      const data = await response.json();
+      throw new Error(data.error || 'Login gagal');
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Error:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+// Signup guru baru (teacher registration)
+async function signupGuru(username, email, password, confirm_password) {
+  try {
+    const response = await fetch(`${API_URL}/signup`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, email, password, confirm_password })
+    });
+    if (!response.ok) {
+      const data = await response.json();
+      throw new Error(data.error || 'Signup gagal');
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Error:', error);
+    return { success: false, error: error.message };
+  }
+}
+
 // ===== QUIZ ENDPOINTS =====
 
 // Ambil semua quiz
@@ -143,6 +183,8 @@ async function getLeaderboard(mode) {
 // Export untuk digunakan di file lain
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
+    loginGuru,
+    signupGuru,
     getAllQuiz,
     getQuizById,
     createQuiz,

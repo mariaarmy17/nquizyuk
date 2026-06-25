@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 require('dotenv').config();
+const bcrypt = require('bcrypt');
 
 // Import database
 const db = require('./backend/database');
@@ -22,6 +23,98 @@ app.use('/src', express.static(path.join(__dirname, 'src')));
 app.use(express.static(path.join(__dirname, 'src')));
 
 // ===== API ENDPOINTS (Backend Routes) =====
+
+// POST - LOGIN GURU (Teacher Login)
+app.post('/api/login', async (req, res) => {
+  const { username, password } = req.body;
+  
+  if (!username || !password) {
+    return res.status(400).json({ error: 'Username dan password diperlukan' });
+  }
+  
+  db.get('SELECT * FROM users WHERE username = ?', [username], async (err, user) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    
+    if (!user) {
+      return res.status(401).json({ error: 'Username atau password salah' });
+    }
+    
+    // Cek apakah user adalah guru (teacher)
+    if (user.role !== 'guru') {
+      return res.status(403).json({ error: 'Hanya guru yang dapat login di sini. Anda adalah ' + user.role });
+    }
+    
+    // Validasi password
+    try {
+      const validPassword = await bcrypt.compare(password, user.password);
+      if (!validPassword) {
+        return res.status(401).json({ error: 'Username atau password salah' });
+      }
+      
+      res.json({
+        success: true,
+        user: {
+          id: user.id,
+          username: user.username,
+          email: user.email,
+          role: user.role
+        },
+        message: 'Login berhasil'
+      });
+    } catch (compareErr) {
+      return res.status(500).json({ error: 'Gagal memvalidasi password' });
+    }
+  });
+});
+
+// POST - SIGNUP GURU (Teacher Registration)
+app.post('/api/signup', async (req, res) => {
+  const { username, email, password, confirm_password } = req.body;
+  
+  if (!username || !email || !password || !confirm_password) {
+    return res.status(400).json({ error: 'Semua field diperlukan' });
+  }
+  
+  if (password !== confirm_password) {
+    return res.status(400).json({ error: 'Password dan konfirmasi tidak cocok' });
+  }
+  
+  if (password.length < 6) {
+    return res.status(400).json({ error: 'Password minimal 6 karakter' });
+  }
+  
+  try {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    
+    db.run(
+      'INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)',
+      [username, email, hashedPassword, 'guru'],
+      function(err) {
+        if (err) {
+          if (err.message.includes('UNIQUE constraint failed')) {
+            return res.status(400).json({ error: 'Username atau email sudah digunakan' });
+          }
+          return res.status(500).json({ error: err.message });
+        }
+        
+        res.json({
+          success: true,
+          message: 'Akun guru berhasil dibuat. Silakan login',
+          user: {
+            id: this.lastID,
+            username: username,
+            email: email,
+            role: 'guru'
+          }
+        });
+      }
+    );
+  } catch (hashErr) {
+    return res.status(500).json({ error: 'Gagal membuat akun: ' + hashErr.message });
+  }
+});
 
 // GET - Ambil semua quiz
 app.get('/api/quiz', (req, res) => {
